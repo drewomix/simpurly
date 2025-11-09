@@ -79,7 +79,7 @@ function TableCell<TData extends RowData>(
     <td
       className={classNames(
         "m-0 text-left px-4 py-3 align-middle first:pl-5 last:pr-5",
-        "text-slate-700 dark:text-slate-200",
+        "text-slate-100",
         isActions && `w-36 sticky ${dir}`,
         isMove && "w-5",
         bgColor,

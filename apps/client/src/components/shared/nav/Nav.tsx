@@ -49,7 +49,7 @@ export function Nav({ maxWidth, isAccountPending }: Props) {
   }, [viewport]);
 
   return (
-    <nav className="bg-white dark:bg-tertiary shadow-sm sticky top-0 z-30">
+    <nav className="sticky top-0 z-30 border-b border-cyan-400/20 bg-[#0b1727]/95 shadow-[0_20px_40px_-35px_rgba(0,0,0,0.95)] backdrop-blur supports-[backdrop-filter]:bg-[#0b1727]/80">
       <div style={{ maxWidth: maxWidth ?? "100rem" }} className="mx-auto px-4 md:px-6">
         <div className="flex items-center justify-between h-14">
           <button
@@ -58,16 +58,16 @@ export function Nav({ maxWidth, isAccountPending }: Props) {
             className="flex flex-col nav:hidden w-7"
             aria-label="Toggle menu"
           >
-            <span className="my-0.5 rounded-md h-0.5 w-full bg-neutral-800 dark:bg-white " />
-            <span className="my-0.5 rounded-md h-0.5 w-full bg-neutral-800 dark:bg-white " />
-            <span className="my-0.5 rounded-md h-0.5 w-full bg-neutral-800 dark:bg-white " />
+            <span className="my-0.5 h-0.5 w-full rounded-md bg-cyan-300/80" />
+            <span className="my-0.5 h-0.5 w-full rounded-md bg-cyan-300/80" />
+            <span className="my-0.5 h-0.5 w-full rounded-md bg-cyan-300/80" />
           </button>
 
           <div className="relative flex items-center nav:space-x-7">
             <h1 className="text-2xl hidden nav:block">
               <a
                 href="/citizen"
-                className="flex items-center gap-2 py-3 font-bold text-gray-800 dark:text-white"
+                className="flex items-center gap-2 py-3 font-semibold text-slate-100"
               >
                 {url ? (
                   <>
@@ -94,10 +94,10 @@ export function Nav({ maxWidth, isAccountPending }: Props) {
               <div
                 role="list"
                 className={classNames(
-                  "nav:flex",
+                  "nav:flex text-slate-200/80",
                   menuOpen
-                    ? "grid place-content-center fixed top-[3.6rem] left-0 bg-white dark:bg-tertiary w-screen space-y-2 py-3 animate-enter"
-                    : "hidden nav:flex-row space-x-1 items-center",
+                    ? "fixed top-[3.6rem] left-0 grid w-screen place-content-center space-y-2 border-y border-cyan-400/10 bg-[#0b1727] py-3 animate-enter"
+                    : "hidden nav:flex-row items-center space-x-2",
                 )}
               >
                 <CitizenDropdown />
@@ -121,8 +121,8 @@ export function Nav({ maxWidth, isAccountPending }: Props) {
                     role="listitem"
                     href="/courthouse"
                     className={classNames(
-                      "p-1 nav:px-2 text-gray-700 dark:text-gray-200 transition duration-300",
-                      isActive("/courthouse") && "font-semibold",
+                      "p-1 nav:px-2 text-slate-200/80 transition duration-300 hover:text-cyan-200",
+                      isActive("/courthouse") && "font-semibold text-cyan-200",
                     )}
                   >
                     {t("courthouse")}

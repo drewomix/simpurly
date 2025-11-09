@@ -47,8 +47,8 @@ export function UtilityPanel({ children, isDispatch }: Props) {
                 width={20}
                 height={20}
                 className={classNames(
-                  "fill-current transition-colors text-slate-500 dark:text-slate-400",
-                  hasActiveDispatchers && "text-green-400 dark:text-green-400",
+                  "fill-current text-cyan-400/60 transition-colors",
+                  hasActiveDispatchers && "text-emerald-400",
                 )}
               />
             </span>

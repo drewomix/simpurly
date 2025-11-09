@@ -58,9 +58,7 @@ export function Table<TData extends _RowData>({
   const pageCount = Math.ceil(dataLength / tableState.pagination.pageSize);
 
   const tableActionsAlignment = user?.tableActionsAlignment ?? TableActionsAlignment.LEFT;
-  const stickyBgColor = features?.isWithinCardOrModal
-    ? "bg-slate-100/70 dark:bg-slate-900/70"
-    : "dark:bg-primary bg-white";
+  const stickyBgColor = features?.isWithinCardOrModal ? "bg-[#13243c]/90" : "bg-[#0f1e33]";
 
   const tableColumns = React.useMemo(() => {
     const cols = orderColumnsByTableActionsAlignment(tableActionsAlignment, columns);
@@ -167,7 +165,7 @@ export function Table<TData extends _RowData>({
           message={tableState.pagination.error.message || "Unable to fetch this route"}
         />
       ) : (
-        <table className="w-full max-h-64 whitespace-nowrap text-sm text-slate-600 dark:text-slate-200">
+        <table className="w-full max-h-64 whitespace-nowrap text-sm text-slate-100">
           <thead>
             {table.getHeaderGroups().map((headerGroup) => (
               <tr key={headerGroup.id}>
