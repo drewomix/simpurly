@@ -33,6 +33,7 @@ interface Props<T extends ActiveOfficer | ActiveDeputy> {
   units: T[];
   setActiveUnit(unit: T | null): void;
   setUnits(units: T[]): void;
+  variant?: "default" | "mark43";
 }
 
 const STATUS_UPDATE_SRC = "/sounds/status-update.mp3" as const;
@@ -42,6 +43,7 @@ export function StatusesArea<T extends ActiveOfficer | ActiveDeputy>({
   units,
   setActiveUnit,
   setUnits,
+  variant = "default",
 }: Props<T>) {
   const isMounted = useMounted();
   const { codes10 } = useValues();
@@ -170,8 +172,15 @@ export function StatusesArea<T extends ActiveOfficer | ActiveDeputy>({
 
   const departmentId = !isUnitOffDuty && "departmentId" in activeUnit && activeUnit.departmentId;
 
+  const containerClass = classNames(
+    "status-buttons-grid",
+    variant === "mark43"
+      ? "mark43-officer__status-grid"
+      : "mt-2 rounded-b-2xl border-t border-cyan-400/20 bg-[#0f243d]/80 px-4 py-2 backdrop-blur",
+  );
+
   return (
-    <ul className="status-buttons-grid mt-2 rounded-b-2xl border-t border-cyan-400/20 bg-[#0f243d]/80 px-4 py-2 backdrop-blur">
+    <ul className={containerClass}>
       {audio}
       <li>
         <Button

@@ -18,14 +18,13 @@ import { ActiveCalls } from "components/dispatch/active-calls/active-calls";
 import { useDispatchState } from "state/dispatch/dispatch-state";
 import { ModalButtons } from "components/leo/ModalButtons";
 import { ActiveBolos } from "components/active-bolos/active-bolos";
-import { requestAll } from "lib/utils";
+import { makeUnitName, requestAll } from "lib/utils";
 import { ActiveOfficers } from "components/dispatch/active-units/officers/active-officers";
 import { ActiveDeputies } from "components/dispatch/active-units/deputies/active-deputies";
 import { ActiveWarrants } from "components/leo/active-warrants/active-warrants";
 import { useSignal100 } from "hooks/shared/useSignal100";
 import { usePanicButton } from "hooks/shared/usePanicButton";
 import { Title } from "components/shared/Title";
-import { UtilityPanel } from "components/shared/utility-panel/utility-panel";
 import { useModal } from "state/modalState";
 import { ModalIds } from "types/modal-ids";
 import { defaultPermissions, Permissions } from "@snailycad/permissions";
@@ -46,6 +45,11 @@ import { useCall911State } from "state/dispatch/call-911-state";
 import { usePermission } from "hooks/usePermission";
 import { useAuth } from "context/AuthContext";
 import { ActiveIncidents } from "components/dispatch/active-incidents/active-incidents";
+import { useGenerateCallsign } from "hooks/useGenerateCallsign";
+import { classNames } from "lib/classNames";
+import { Button } from "@snailycad/ui";
+import { Grid1x2Fill } from "react-bootstrap-icons";
+import { EditDashboardLayoutModal } from "components/shared/utility-panel/edit-dashboard-layout-modal";
 
 const Modals = {
   CreateWarrantModal: dynamic(
@@ -205,19 +209,74 @@ export default function OfficerDashboard({
   ];
 
   const layoutOrder = session?.officerLayoutOrder ?? [];
-  const sortedCards = cards.sort((a, b) => {
+  const sortedCards = [...cards].sort((a, b) => {
     return layoutOrder.indexOf(a.type) - layoutOrder.indexOf(b.type);
   });
 
+  const columns = {
+    left: [] as typeof sortedCards,
+    center: [] as typeof sortedCards,
+    right: [] as typeof sortedCards,
+  };
+
+  for (const card of sortedCards) {
+    if (!card.isEnabled) continue;
+
+    switch (card.type) {
+      case DashboardLayoutCardType.ACTIVE_OFFICERS:
+      case DashboardLayoutCardType.ACTIVE_DEPUTIES: {
+        columns.left.push(card);
+        break;
+      }
+      case DashboardLayoutCardType.ACTIVE_BOLOS:
+      case DashboardLayoutCardType.ACTIVE_WARRANTS: {
+        columns.right.push(card);
+        break;
+      }
+      default: {
+        columns.center.push(card);
+        break;
+      }
+    }
+  }
+
   return (
-    <Layout permissions={{ permissions: [Permissions.Leo] }} className="dark:text-white">
+    <Layout permissions={{ permissions: [Permissions.Leo] }} className="mark43-cad-layout">
       <Title renderLayoutTitle={false}>{t("officer")}</Title>
 
-      <OfficerHeader activeOfficer={activeOfficer} />
+      <div className="mark43-cad mark43-cad--officer">
+        <OfficerHeader activeOfficer={activeOfficer} />
 
-      {sortedCards.map((card) =>
-        card.isEnabled ? <React.Fragment key={card.type}>{card.children}</React.Fragment> : null,
-      )}
+        <div className="mark43-cad__shell mark43-cad__shell--officer">
+          <div className="mark43-cad__column mark43-cad__column--left">
+            <div className="mark43-cad__panel mark43-officer__panel">
+              <OfficerSelfInitiatePanel activeOfficer={activeOfficer} />
+            </div>
+
+            {columns.left.map((card) => (
+              <div key={card.type} className="mark43-cad__panel">
+                {card.children}
+              </div>
+            ))}
+          </div>
+
+          <div className="mark43-cad__main">
+            {columns.center.map((card) => (
+              <div key={card.type} className="mark43-cad__panel mark43-cad__panel--primary">
+                {card.children}
+              </div>
+            ))}
+          </div>
+
+          <div className="mark43-cad__column mark43-cad__column--right">
+            {columns.right.map((card) => (
+              <div key={card.type} className="mark43-cad__panel">
+                {card.children}
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
 
       <Modals.SelectOfficerModal />
       <OfficerModals />
@@ -229,12 +288,69 @@ function OfficerHeader(props: Pick<Props, "activeOfficer">) {
   const signal100 = useSignal100();
   const tones = useTones(ActiveToneType.LEO);
   const panic = usePanicButton();
+  const t = useTranslations("Leo");
+  const common = useTranslations("Common");
+  const { generateCallsign } = useGenerateCallsign();
 
-  const leoState = useLeoState();
-  const dispatchState = useDispatchState((state) => ({
-    activeOfficers: state.activeOfficers,
-    setActiveOfficers: state.setActiveOfficers,
+  const { activeOfficer: activeOfficerState } = useLeoState((state) => ({
+    activeOfficer: state.activeOfficer,
   }));
+
+  const [currentTime, setCurrentTime] = React.useState(() => new Date());
+
+  React.useEffect(() => {
+    const timer = setInterval(() => setCurrentTime(new Date()), 60_000);
+
+    return () => {
+      clearInterval(timer);
+    };
+  }, []);
+
+  const activeUnit = activeOfficerState ?? props.activeOfficer ?? null;
+
+  const formattedTime = React.useMemo(() => {
+    return new Intl.DateTimeFormat(undefined, {
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: false,
+    }).format(currentTime);
+  }, [currentTime]);
+
+  const activeUnitDisplay = React.useMemo(() => {
+    if (!activeUnit) {
+      return common("none");
+    }
+
+    const callsign = generateCallsign(activeUnit);
+    const name = makeUnitName(activeUnit);
+
+    return [callsign, name].filter(Boolean).join(" ") || callsign || name || common("none");
+  }, [activeUnit, common, generateCallsign]);
+
+  const panicDisplay = React.useMemo(() => {
+    if (!panic.unit) {
+      return "CLEAR";
+    }
+
+    const callsign = generateCallsign(panic.unit);
+    const name = makeUnitName(panic.unit);
+
+    return [callsign, name].filter(Boolean).join(" ") || callsign || name || "ACTIVE";
+  }, [generateCallsign, panic.unit]);
+
+  const toneDisplay = React.useMemo(() => {
+    if (tones.description) {
+      return tones.description;
+    }
+
+    if (tones.user) {
+      return typeof tones.user === "string" ? tones.user : tones.user.username;
+    }
+
+    return "CLEAR";
+  }, [tones.description, tones.user]);
+
+  const toneActive = Boolean(tones.description || tones.user);
 
   return (
     <>
@@ -242,20 +358,108 @@ function OfficerHeader(props: Pick<Props, "activeOfficer">) {
       <panic.Component audio={panic.audio} unit={panic.unit} />
       <tones.Component audio={tones.audio} description={tones.description} user={tones.user} />
 
-      <UtilityPanel>
-        <div className="px-4">
-          <ModalButtons initialActiveOfficer={props.activeOfficer} />
+      <header className="mark43-cad__header mark43-officer__header">
+        <div className="mark43-cad__brand">
+          <p className="mark43-cad__brand-label">{t("officer")}</p>
+          <h1 className="mark43-cad__brand-title">Self-Initiate</h1>
         </div>
 
-        <StatusesArea
-          setUnits={dispatchState.setActiveOfficers}
-          units={dispatchState.activeOfficers}
-          activeUnit={leoState.activeOfficer}
-          setActiveUnit={leoState.setActiveOfficer}
-          initialData={props.activeOfficer}
-        />
-      </UtilityPanel>
+        <div className="mark43-cad__status-group mark43-officer__status-group">
+          <div className="mark43-cad__status mark43-officer__status mark43-cad__status--unit">
+            <span className="mark43-cad__status-label">{t("activeOfficer")}</span>
+            <strong className="mark43-cad__status-value">{activeUnitDisplay}</strong>
+          </div>
+
+          <div
+            className={classNames(
+              "mark43-cad__status mark43-officer__status mark43-cad__status--signal",
+              signal100.enabled && "mark43-cad__status--active",
+            )}
+          >
+            <span className="mark43-cad__status-label">Signal 100</span>
+            <strong className="mark43-cad__status-value">
+              {signal100.enabled ? "ACTIVE" : "OFF"}
+            </strong>
+          </div>
+
+          <div
+            className={classNames(
+              "mark43-cad__status mark43-officer__status mark43-cad__status--panic",
+              panic.unit && "mark43-cad__status--active",
+            )}
+          >
+            <span className="mark43-cad__status-label">Panic</span>
+            <strong className="mark43-cad__status-value">{panicDisplay}</strong>
+          </div>
+
+          <div
+            className={classNames(
+              "mark43-cad__status mark43-officer__status mark43-cad__status--tone",
+              toneActive && "mark43-cad__status--active",
+            )}
+          >
+            <span className="mark43-cad__status-label">Tone</span>
+            <strong className="mark43-cad__status-value">{toneDisplay}</strong>
+          </div>
+
+          <div className="mark43-cad__status mark43-officer__status">
+            <span className="mark43-cad__status-label">Current Time</span>
+            <strong className="mark43-cad__status-value">{formattedTime}</strong>
+          </div>
+        </div>
+      </header>
     </>
+  );
+}
+
+function OfficerSelfInitiatePanel(props: Pick<Props, "activeOfficer">) {
+  const t = useTranslations("Leo");
+  const modalState = useModal();
+  const dispatchState = useDispatchState((state) => ({
+    activeOfficers: state.activeOfficers,
+    setActiveOfficers: state.setActiveOfficers,
+  }));
+  const leoState = useLeoState((state) => ({
+    activeOfficer: state.activeOfficer,
+    setActiveOfficer: state.setActiveOfficer,
+  }));
+
+  return (
+    <section className="mark43-officer__self-initiate">
+      <header className="mark43-officer__self-initiate-header">
+        <div>
+          <p className="mark43-officer__self-initiate-label">{t("utilityPanel")}</p>
+          <h2 className="mark43-officer__self-initiate-title">Self-Initiate</h2>
+        </div>
+
+        <span className="mark43-officer__self-initiate-meta">Shift Metadata</span>
+      </header>
+
+      <div className="mark43-officer__self-initiate-actions">
+        <ModalButtons initialActiveOfficer={props.activeOfficer} />
+      </div>
+
+      <StatusesArea
+        variant="mark43"
+        setUnits={dispatchState.setActiveOfficers}
+        units={dispatchState.activeOfficers}
+        activeUnit={leoState.activeOfficer}
+        setActiveUnit={leoState.setActiveOfficer}
+        initialData={props.activeOfficer}
+      />
+
+      <div className="mark43-officer__layout-controls">
+        <Button
+          size="xs"
+          className="mark43-officer__layout-button"
+          onPress={() => modalState.openModal(ModalIds.EditDashboardLayout)}
+        >
+          <Grid1x2Fill />
+          Edit Dashboard Layout
+        </Button>
+        <EditDashboardLayoutModal />
+      </div>
+    </section>
   );
 }
 
