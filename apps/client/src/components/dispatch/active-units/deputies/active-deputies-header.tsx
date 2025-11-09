@@ -28,33 +28,34 @@ export function ActiveDeputiesHeader() {
   const showCreateTemporaryUnitButton = isDispatch && hasDispatchPerms;
 
   return (
-    <header className="p-2 px-4 bg-gray-200 dark:bg-secondary flex items-center justify-between">
-      <h1 className="text-xl font-semibold">{t("Ems.activeDeputies")}</h1>
+    <header className="dashboard-card__title-bar">
+      <h1>{t("Ems.activeDeputies")}</h1>
 
       <div className="flex items-center gap-2">
         {showCreateTemporaryUnitButton ? (
           <Button
-            variant="cancel"
-            className={classNames(
-              "px-1.5 dark:border dark:border-quinary dark:bg-tertiary dark:hover:brightness-125 group",
-            )}
+            variant={null}
+            className="dashboard-action-neutral"
             onPress={() => modalState.openModal(ModalIds.CreateTemporaryUnit, "ems-fd")}
           >
             {t("Leo.createTemporaryUnit")}
           </Button>
         ) : null}
         <Button
-          variant="cancel"
+          variant={null}
           className={classNames(
-            "px-2 py-2 dark:border dark:border-quinary dark:bg-tertiary dark:hover:brightness-125 group",
-            showEmsFilters && "dark:!bg-secondary !bg-gray-500",
+            "dashboard-action-neutral !px-3 !py-2",
+            showEmsFilters && "border-indigo-400/80 bg-indigo-500/40 text-white",
           )}
           onPress={() => setShowFilters("ems-fd", !showEmsFilters)}
           title={common("filters")}
           disabled={activeDeputies.length <= 0}
         >
           <Filter
-            className={classNames("group-hover:fill-white", showEmsFilters && "text-white")}
+            className={classNames(
+              "text-slate-500 dark:text-slate-300",
+              showEmsFilters && "text-white",
+            )}
             aria-label={common("filters")}
             size={18}
           />

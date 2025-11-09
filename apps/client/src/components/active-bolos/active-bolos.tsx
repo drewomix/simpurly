@@ -118,31 +118,34 @@ export function ActiveBolos({ initialBolos }: Props) {
   }
 
   return (
-    <div className="mb-3 card">
-      <header className="flex items-center justify-between p-2 px-4 bg-gray-200 dark:bg-secondary">
-        <h3 className="text-xl font-semibold">{t("Bolos.activeBolos")}</h3>
+    <section className="dashboard-card">
+      <header className="dashboard-card__title-bar">
+        <h3>{t("Bolos.activeBolos")}</h3>
 
-        <div className="flex gap-1">
+        <div className="flex gap-2">
           <Button
             variant={null}
-            className="bg-gray-500 hover:bg-gray-600 dark:border dark:border-quinary dark:bg-tertiary dark:hover:brightness-125 text-white"
+            className="dashboard-action-primary"
             onPress={handleCreateBolo}
             isDisabled={isDispatchRoute ? !hasActiveDispatchers : false}
           >
             {t("Bolos.createBolo")}
           </Button>
           <Button
-            variant="cancel"
+            variant={null}
             className={classNames(
-              "px-2 dark:border dark:border-quinary dark:bg-tertiary dark:hover:brightness-125 group",
-              showFilters && "dark:!bg-secondary !bg-gray-500",
+              "dashboard-action-neutral !px-3 !py-2",
+              showFilters && "border-indigo-400/80 bg-indigo-500/40 text-white",
             )}
             onPress={() => setShowFilters(!showFilters)}
             title={t("Bolos.filters")}
             isDisabled={asyncTable.noItemsAvailable}
           >
             <Filter
-              className={classNames("group-hover:fill-white", showFilters && "text-white")}
+              className={classNames(
+                "text-slate-500 dark:text-slate-300",
+                showFilters && "text-white",
+              )}
               aria-label={t("Bolos.filters")}
               size={18}
             />
@@ -150,15 +153,20 @@ export function ActiveBolos({ initialBolos }: Props) {
         </div>
       </header>
 
-      {showFilters ? <BoloFilters asyncTable={asyncTable} search={{ search, setSearch }} /> : null}
+      {showFilters ? (
+        <div className="dashboard-card__section pt-0">
+          <BoloFilters asyncTable={asyncTable} search={{ search, setSearch }} />
+        </div>
+      ) : null}
 
-      <div className="px-4">
+      <div className="dashboard-card__body">
         {asyncTable.noItemsAvailable ? (
-          <p className="py-2 text-neutral-700 dark:text-gray-300">{t("Bolos.noActiveBolos")}</p>
+          <p className="dashboard-card__empty">{t("Bolos.noActiveBolos")}</p>
         ) : (
           <Table
             features={{ isWithinCardOrModal: true }}
             tableState={tableState}
+            containerProps={{ className: "px-0" }}
             data={bolos.map((bolo) => {
               const isBoloMarkedForStolen = bolo.description === STOLEN_TEXT;
               const descriptionData = isBoloMarkedForStolen
@@ -229,6 +237,6 @@ export function ActiveBolos({ initialBolos }: Props) {
         onClose={() => boloState.setTempId(null)}
         state={state}
       />
-    </div>
+    </section>
   );
 }

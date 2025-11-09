@@ -114,135 +114,137 @@ function ActiveOfficers({ initialOfficers }: Props) {
   }, [asyncTable.items]); // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
-    <div className="rounded-md card mb-3">
+    <section className="dashboard-card">
       <ActiveOfficersHeader />
-      <ActiveUnitsSearch
-        totalCount={initialOfficers.length}
-        isLoading={asyncTable.isLoading}
-        type="leo"
-      />
-
-      {activeOfficers.length <= 0 ? (
-        <p className="px-4 py-2 text-neutral-700 dark:text-gray-300">{t("noActiveOfficers")}</p>
-      ) : (
-        <Table
-          features={{ isWithinCardOrModal: true }}
-          containerProps={{ className: "mb-3 px-4" }}
-          tableState={tableState}
-          data={activeOfficers.map((officer) => {
-            const useDot = user?.statusViewMode === StatusViewMode.DOT_COLOR;
-            const nameAndCallsign = `${generateCallsign(officer)} ${makeUnitName(officer)}`;
-
-            const backgroundColor = officer.status?.color;
-            const textColor = officer.status?.textColor;
-            const color =
-              backgroundColor && !useDot
-                ? textColor || generateContrastColor(backgroundColor)
-                : textColor;
-
-            return {
-              id: officer.id,
-              rowProps: {
-                style: {
-                  backgroundColor: !useDot && backgroundColor ? backgroundColor : undefined,
-                  color,
-                },
-              },
-              name: nameAndCallsign,
-              officer: (
-                <OfficerColumn
-                  useDot={useDot}
-                  textColor={textColor}
-                  nameAndCallsign={nameAndCallsign}
-                  setTempUnit={officerState.setTempId}
-                  officer={officer}
-                />
-              ),
-              badgeNumberString: isUnitOfficer(officer) && officer.badgeNumberString,
-              department:
-                ((isUnitCombined(officer) && officer.officers[0]?.department?.value.value) ||
-                  (isUnitOfficer(officer) && officer.department?.value.value)) ??
-                common("none"),
-              division: (
-                <HoverCard>
-                  <HoverCardTrigger asChild>
-                    <p className={classNames("max-w-xs truncate", textColor)}>
-                      {isUnitOfficer(officer) && formatUnitDivisions(officer)}
-                    </p>
-                  </HoverCardTrigger>
-
-                  <HoverCardContent className="whitespace-pre-wrap" pointerEvents>
-                    {isUnitOfficer(officer) && formatUnitDivisions(officer)}
-                  </HoverCardContent>
-                </HoverCard>
-              ),
-              rank: (isUnitOfficer(officer) && officer.rank?.value) ?? common("none"),
-              status: (
-                <span className="flex items-center">
-                  {useDot && backgroundColor ? (
-                    <span
-                      style={{ background: backgroundColor }}
-                      className="block w-3 h-3 mr-2 rounded-full"
-                    />
-                  ) : null}
-                  {officer.status?.value?.value}
-                </span>
-              ),
-              vehicle: officer.activeVehicle ? (
-                <HoverCard>
-                  <HoverCardTrigger>{officer.activeVehicle.value.value}</HoverCardTrigger>
-                  <HoverCardContent>
-                    {officer.activeVehicle.description ?? officer.activeVehicle.value.value}
-                  </HoverCardContent>
-                </HoverCard>
-              ) : (
-                common("none")
-              ),
-              incident: (
-                <ActiveIncidentColumn
-                  unitId={officer.id}
-                  isDispatch={isDispatch}
-                  incidentId={officer.activeIncidentId}
-                />
-              ),
-              activeCall: (
-                <ActiveCallColumn
-                  unitId={officer.id}
-                  isDispatch={isDispatch}
-                  callId={officer.activeCallId}
-                  size="sm"
-                />
-              ),
-              radioChannel: <UnitRadioChannelModal unit={officer} />,
-              actions: isDispatch ? (
-                <Button
-                  disabled={!hasActiveDispatchers}
-                  onPress={() => handleEditClick(officer)}
-                  size="xs"
-                  variant="success"
-                >
-                  {common("manage")}
-                </Button>
-              ) : null,
-            };
-          })}
-          columns={[
-            { header: t("officer"), accessorKey: "officer" },
-            BADGE_NUMBERS ? { header: t("badgeNumber"), accessorKey: "badgeNumberString" } : null,
-            { header: t("department"), accessorKey: "department" },
-            DIVISIONS ? { header: t("division"), accessorKey: "division" } : null,
-            { header: t("rank"), accessorKey: "rank" },
-            { header: t("status"), accessorKey: "status" },
-            { header: t("patrolVehicle"), accessorKey: "vehicle" },
-            ACTIVE_INCIDENTS ? { header: t("incident"), accessorKey: "incident" } : null,
-            { header: t("activeCall"), accessorKey: "activeCall" },
-            RADIO_CHANNEL_MANAGEMENT
-              ? { header: t("radioChannel"), accessorKey: "radioChannel" }
-              : null,
-            isDispatch ? { header: common("actions"), accessorKey: "actions" } : null,
-          ]}
+      <div className="dashboard-card__body">
+        <ActiveUnitsSearch
+          totalCount={initialOfficers.length}
+          isLoading={asyncTable.isLoading}
+          type="leo"
         />
-      )}
+
+        {activeOfficers.length <= 0 ? (
+          <p className="dashboard-card__empty">{t("noActiveOfficers")}</p>
+        ) : (
+          <Table
+            features={{ isWithinCardOrModal: true }}
+            containerProps={{ className: "px-0" }}
+            tableState={tableState}
+            data={activeOfficers.map((officer) => {
+              const useDot = user?.statusViewMode === StatusViewMode.DOT_COLOR;
+              const nameAndCallsign = `${generateCallsign(officer)} ${makeUnitName(officer)}`;
+
+              const backgroundColor = officer.status?.color;
+              const textColor = officer.status?.textColor;
+              const color =
+                backgroundColor && !useDot
+                  ? textColor || generateContrastColor(backgroundColor)
+                  : textColor;
+
+              return {
+                id: officer.id,
+                rowProps: {
+                  style: {
+                    backgroundColor: !useDot && backgroundColor ? backgroundColor : undefined,
+                    color,
+                  },
+                },
+                name: nameAndCallsign,
+                officer: (
+                  <OfficerColumn
+                    useDot={useDot}
+                    textColor={textColor}
+                    nameAndCallsign={nameAndCallsign}
+                    setTempUnit={officerState.setTempId}
+                    officer={officer}
+                  />
+                ),
+                badgeNumberString: isUnitOfficer(officer) && officer.badgeNumberString,
+                department:
+                  ((isUnitCombined(officer) && officer.officers[0]?.department?.value.value) ||
+                    (isUnitOfficer(officer) && officer.department?.value.value)) ??
+                  common("none"),
+                division: (
+                  <HoverCard>
+                    <HoverCardTrigger asChild>
+                      <p className={classNames("max-w-xs truncate", textColor)}>
+                        {isUnitOfficer(officer) && formatUnitDivisions(officer)}
+                      </p>
+                    </HoverCardTrigger>
+
+                    <HoverCardContent className="whitespace-pre-wrap" pointerEvents>
+                      {isUnitOfficer(officer) && formatUnitDivisions(officer)}
+                    </HoverCardContent>
+                  </HoverCard>
+                ),
+                rank: (isUnitOfficer(officer) && officer.rank?.value) ?? common("none"),
+                status: (
+                  <span className="flex items-center">
+                    {useDot && backgroundColor ? (
+                      <span
+                        style={{ background: backgroundColor }}
+                        className="block w-3 h-3 mr-2 rounded-full"
+                      />
+                    ) : null}
+                    {officer.status?.value?.value}
+                  </span>
+                ),
+                vehicle: officer.activeVehicle ? (
+                  <HoverCard>
+                    <HoverCardTrigger>{officer.activeVehicle.value.value}</HoverCardTrigger>
+                    <HoverCardContent>
+                      {officer.activeVehicle.description ?? officer.activeVehicle.value.value}
+                    </HoverCardContent>
+                  </HoverCard>
+                ) : (
+                  common("none")
+                ),
+                incident: (
+                  <ActiveIncidentColumn
+                    unitId={officer.id}
+                    isDispatch={isDispatch}
+                    incidentId={officer.activeIncidentId}
+                  />
+                ),
+                activeCall: (
+                  <ActiveCallColumn
+                    unitId={officer.id}
+                    isDispatch={isDispatch}
+                    callId={officer.activeCallId}
+                    size="sm"
+                  />
+                ),
+                radioChannel: <UnitRadioChannelModal unit={officer} />,
+                actions: isDispatch ? (
+                  <Button
+                    disabled={!hasActiveDispatchers}
+                    onPress={() => handleEditClick(officer)}
+                    size="xs"
+                    variant="success"
+                  >
+                    {common("manage")}
+                  </Button>
+                ) : null,
+              };
+            })}
+            columns={[
+              { header: t("officer"), accessorKey: "officer" },
+              BADGE_NUMBERS ? { header: t("badgeNumber"), accessorKey: "badgeNumberString" } : null,
+              { header: t("department"), accessorKey: "department" },
+              DIVISIONS ? { header: t("division"), accessorKey: "division" } : null,
+              { header: t("rank"), accessorKey: "rank" },
+              { header: t("status"), accessorKey: "status" },
+              { header: t("patrolVehicle"), accessorKey: "vehicle" },
+              ACTIVE_INCIDENTS ? { header: t("incident"), accessorKey: "incident" } : null,
+              { header: t("activeCall"), accessorKey: "activeCall" },
+              RADIO_CHANNEL_MANAGEMENT
+                ? { header: t("radioChannel"), accessorKey: "radioChannel" }
+                : null,
+              isDispatch ? { header: common("actions"), accessorKey: "actions" } : null,
+            ]}
+          />
+        )}
+      </div>
 
       {tempOfficer ? (
         <ManageUnitModal onClose={() => officerState.setTempId(null)} unit={tempOfficer} />
@@ -261,7 +263,7 @@ function ActiveOfficers({ initialOfficers }: Props) {
       ) : null}
       {isDispatch && showCreateTemporaryUnitButton ? <CreateTemporaryUnitModal /> : null}
       {isDispatch ? <PrivateMessagesModal /> : null}
-    </div>
+    </section>
   );
 }
 

@@ -34,10 +34,12 @@ export function TableHeader<TData extends RowData>({
   return (
     <th
       className={classNames(
-        "m-0 top-0 sticky p-2 px-3 font-semibold bg-gray-200 dark:bg-secondary lg:table-cell text-left select-none",
-        "uppercase text-sm text-neutral-700 dark:text-gray-400 first:rounded-tl-md last:rounded-tr-md",
-        isActions ? `${dir} z-10 w-[100px]` : "sticky",
-        canSort && "cursor-pointer select-none",
+        "sticky top-0 z-10 px-4 py-3 text-left uppercase tracking-[0.18em]",
+        "text-xs font-semibold text-slate-500 dark:text-slate-300",
+        "bg-slate-100/70 dark:bg-slate-900/70 backdrop-blur border-b border-slate-200/40 dark:border-slate-700/40",
+        "first:rounded-tl-2xl last:rounded-tr-2xl",
+        isActions ? `${dir} w-[110px]` : "sticky",
+        canSort && "cursor-pointer",
       )}
       key={header.id}
       colSpan={header.colSpan}

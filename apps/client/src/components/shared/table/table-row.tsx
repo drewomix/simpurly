@@ -16,14 +16,35 @@ export function TableRow<TData extends RowData>({
   tableActionsAlignment,
   stickyBgColor,
 }: Props<TData>) {
-  const rowProps = (row.original as any)?.rowProps as Partial<Record<string, any>> | undefined;
+  const rawRowProps = (row.original as any)?.rowProps as Partial<Record<string, any>> | undefined;
+  const { className: providedClassName, ...rowProps } = rawRowProps ?? {};
+  const hasCustomBackground =
+    providedClassName?.includes("bg-") || Boolean(rawRowProps?.style?.backgroundColor);
 
   return (
-    <tr {...rowProps} data-row-index={idx} key={row.id}>
+    <tr
+      {...rowProps}
+      data-row-index={idx}
+      className={classNames(
+        "table-row-base",
+        hasCustomBackground && "table-row-base--custom",
+        providedClassName,
+      )}
+      key={row.id}
+    >
       {row.getVisibleCells().map((cell) => {
         return (
           <ErrorBoundary fallback={() => <p>ERROR!</p>} key={cell.id}>
-            <TableCell {...{ row, idx, tableActionsAlignment, cell, stickyBgColor, rowProps }} />
+            <TableCell
+              {...{
+                row,
+                idx,
+                tableActionsAlignment,
+                cell,
+                stickyBgColor,
+                rowProps: rawRowProps,
+              }}
+            />
           </ErrorBoundary>
         );
       })}
@@ -57,7 +78,8 @@ function TableCell<TData extends RowData>(
   return (
     <td
       className={classNames(
-        "m-0 text-left p-3 px-3",
+        "m-0 text-left px-4 py-3 align-middle first:pl-5 last:pr-5",
+        "text-slate-700 dark:text-slate-200",
         isActions && `w-36 sticky ${dir}`,
         isMove && "w-5",
         bgColor,

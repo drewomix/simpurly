@@ -91,124 +91,127 @@ function ActiveDeputies({ initialDeputies }: Props) {
   }, [asyncTable.items]); // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
-    <div className="mb-3 rounded-md card">
+    <section className="dashboard-card">
       <ActiveDeputiesHeader />
-      <ActiveUnitsSearch
-        totalCount={initialDeputies.length}
-        isLoading={asyncTable.isLoading}
-        type="ems-fd"
-      />
-
-      {activeDeputies.length <= 0 ? (
-        <p className="px-4 py-2 text-neutral-700 dark:text-gray-300">{t("Ems.noActiveDeputies")}</p>
-      ) : (
-        <Table
-          tableState={tableState}
-          features={{ isWithinCardOrModal: true }}
-          containerProps={{ className: "mb-3 px-4" }}
-          data={activeDeputies.map((deputy) => {
-            const useDot = user?.statusViewMode === StatusViewMode.DOT_COLOR;
-            const nameAndCallsign = `${generateCallsign(deputy)} ${makeUnitName(deputy)}`;
-
-            const backgroundColor = deputy.status?.color;
-            const textColor = deputy.status?.textColor;
-            const color =
-              backgroundColor && !useDot
-                ? textColor || generateContrastColor(backgroundColor)
-                : textColor;
-
-            return {
-              id: deputy.id,
-              rowProps: {
-                style: {
-                  backgroundColor: !useDot && backgroundColor ? backgroundColor : undefined,
-                  color,
-                },
-              },
-              name: nameAndCallsign,
-              deputy: (
-                <DeputyColumn
-                  useDot={useDot}
-                  textColor={textColor}
-                  deputy={deputy}
-                  isDispatch={isDispatch}
-                  nameAndCallsign={nameAndCallsign}
-                  setTempUnit={deputyState.setTempId}
-                />
-              ),
-              badgeNumberString: !isUnitCombinedEmsFd(deputy) && deputy.badgeNumberString,
-              department:
-                (!isUnitCombinedEmsFd(deputy) && deputy.department?.value.value) ?? common("none"),
-              division: !isUnitCombinedEmsFd(deputy) && formatUnitDivisions(deputy),
-              rank: (!isUnitCombinedEmsFd(deputy) && deputy.rank?.value) ?? common("none"),
-              status: (
-                <span className="flex items-center">
-                  {useDot && color ? (
-                    <span
-                      style={{ background: color }}
-                      className="block w-3 h-3 mr-2 rounded-full"
-                    />
-                  ) : null}
-                  {deputy.status?.value?.value}
-                </span>
-              ),
-              vehicle: deputy.activeVehicle ? (
-                <HoverCard>
-                  <HoverCardTrigger>{deputy.activeVehicle.value.value}</HoverCardTrigger>
-                  <HoverCardContent>
-                    {deputy.activeVehicle.description ?? deputy.activeVehicle.value.value}
-                  </HoverCardContent>
-                </HoverCard>
-              ) : (
-                common("none")
-              ),
-              incident: (
-                <ActiveIncidentColumn
-                  unitId={deputy.id}
-                  isDispatch={isDispatch}
-                  incidentId={deputy.activeIncidentId}
-                />
-              ),
-              activeCall: (
-                <ActiveCallColumn
-                  unitId={deputy.id}
-                  isDispatch={isDispatch}
-                  callId={deputy.activeCallId}
-                  size="sm"
-                />
-              ),
-              radioChannel: <UnitRadioChannelModal unit={deputy} />,
-              actions: isDispatch ? (
-                <Button
-                  disabled={!hasActiveDispatchers}
-                  onPress={() => handleEditClick(deputy)}
-                  size="xs"
-                  variant="success"
-                >
-                  {common("manage")}
-                </Button>
-              ) : null,
-            };
-          })}
-          columns={[
-            { header: t("Ems.deputy"), accessorKey: "deputy" },
-            BADGE_NUMBERS
-              ? { header: t("Leo.badgeNumber"), accessorKey: "badgeNumberString" }
-              : null,
-            { header: t("Leo.department"), accessorKey: "department" },
-            DIVISIONS ? { header: t("Leo.division"), accessorKey: "division" } : null,
-            { header: t("Leo.rank"), accessorKey: "rank" },
-            { header: t("Leo.status"), accessorKey: "status" },
-            { header: t("Ems.emergencyVehicle"), accessorKey: "vehicle" },
-            ACTIVE_INCIDENTS ? { header: t("Leo.incident"), accessorKey: "incident" } : null,
-            { header: t("Leo.activeCall"), accessorKey: "activeCall" },
-            RADIO_CHANNEL_MANAGEMENT
-              ? { header: t("Leo.radioChannel"), accessorKey: "radioChannel" }
-              : null,
-            isDispatch ? { header: common("actions"), accessorKey: "actions" } : null,
-          ]}
+      <div className="dashboard-card__body">
+        <ActiveUnitsSearch
+          totalCount={initialDeputies.length}
+          isLoading={asyncTable.isLoading}
+          type="ems-fd"
         />
-      )}
+
+        {activeDeputies.length <= 0 ? (
+          <p className="dashboard-card__empty">{t("Ems.noActiveDeputies")}</p>
+        ) : (
+          <Table
+            tableState={tableState}
+            features={{ isWithinCardOrModal: true }}
+            containerProps={{ className: "px-0" }}
+            data={activeDeputies.map((deputy) => {
+              const useDot = user?.statusViewMode === StatusViewMode.DOT_COLOR;
+              const nameAndCallsign = `${generateCallsign(deputy)} ${makeUnitName(deputy)}`;
+
+              const backgroundColor = deputy.status?.color;
+              const textColor = deputy.status?.textColor;
+              const color =
+                backgroundColor && !useDot
+                  ? textColor || generateContrastColor(backgroundColor)
+                  : textColor;
+
+              return {
+                id: deputy.id,
+                rowProps: {
+                  style: {
+                    backgroundColor: !useDot && backgroundColor ? backgroundColor : undefined,
+                    color,
+                  },
+                },
+                name: nameAndCallsign,
+                deputy: (
+                  <DeputyColumn
+                    useDot={useDot}
+                    textColor={textColor}
+                    deputy={deputy}
+                    isDispatch={isDispatch}
+                    nameAndCallsign={nameAndCallsign}
+                    setTempUnit={deputyState.setTempId}
+                  />
+                ),
+                badgeNumberString: !isUnitCombinedEmsFd(deputy) && deputy.badgeNumberString,
+                department:
+                  (!isUnitCombinedEmsFd(deputy) && deputy.department?.value.value) ??
+                  common("none"),
+                division: !isUnitCombinedEmsFd(deputy) && formatUnitDivisions(deputy),
+                rank: (!isUnitCombinedEmsFd(deputy) && deputy.rank?.value) ?? common("none"),
+                status: (
+                  <span className="flex items-center">
+                    {useDot && color ? (
+                      <span
+                        style={{ background: color }}
+                        className="block w-3 h-3 mr-2 rounded-full"
+                      />
+                    ) : null}
+                    {deputy.status?.value?.value}
+                  </span>
+                ),
+                vehicle: deputy.activeVehicle ? (
+                  <HoverCard>
+                    <HoverCardTrigger>{deputy.activeVehicle.value.value}</HoverCardTrigger>
+                    <HoverCardContent>
+                      {deputy.activeVehicle.description ?? deputy.activeVehicle.value.value}
+                    </HoverCardContent>
+                  </HoverCard>
+                ) : (
+                  common("none")
+                ),
+                incident: (
+                  <ActiveIncidentColumn
+                    unitId={deputy.id}
+                    isDispatch={isDispatch}
+                    incidentId={deputy.activeIncidentId}
+                  />
+                ),
+                activeCall: (
+                  <ActiveCallColumn
+                    unitId={deputy.id}
+                    isDispatch={isDispatch}
+                    callId={deputy.activeCallId}
+                    size="sm"
+                  />
+                ),
+                radioChannel: <UnitRadioChannelModal unit={deputy} />,
+                actions: isDispatch ? (
+                  <Button
+                    disabled={!hasActiveDispatchers}
+                    onPress={() => handleEditClick(deputy)}
+                    size="xs"
+                    variant="success"
+                  >
+                    {common("manage")}
+                  </Button>
+                ) : null,
+              };
+            })}
+            columns={[
+              { header: t("Ems.deputy"), accessorKey: "deputy" },
+              BADGE_NUMBERS
+                ? { header: t("Leo.badgeNumber"), accessorKey: "badgeNumberString" }
+                : null,
+              { header: t("Leo.department"), accessorKey: "department" },
+              DIVISIONS ? { header: t("Leo.division"), accessorKey: "division" } : null,
+              { header: t("Leo.rank"), accessorKey: "rank" },
+              { header: t("Leo.status"), accessorKey: "status" },
+              { header: t("Ems.emergencyVehicle"), accessorKey: "vehicle" },
+              ACTIVE_INCIDENTS ? { header: t("Leo.incident"), accessorKey: "incident" } : null,
+              { header: t("Leo.activeCall"), accessorKey: "activeCall" },
+              RADIO_CHANNEL_MANAGEMENT
+                ? { header: t("Leo.radioChannel"), accessorKey: "radioChannel" }
+                : null,
+              isDispatch ? { header: common("actions"), accessorKey: "actions" } : null,
+            ]}
+          />
+        )}
+      </div>
 
       {tempDeputy ? (
         <ManageUnitModal
@@ -229,7 +232,7 @@ function ActiveDeputies({ initialDeputies }: Props) {
           setActiveUnit={setActiveDeputy}
         />
       ) : null}
-    </div>
+    </section>
   );
 }
 

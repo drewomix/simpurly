@@ -29,9 +29,9 @@ export function UtilityPanel({ children, isDispatch }: Props) {
   const modalState = useModal();
 
   return (
-    <div className="w-full mb-3 card overflow-y-hidden">
-      <header className="flex items-center justify-between px-4 py-2 mb-2 bg-gray-200 dark:bg-secondary">
-        <h1 className="text-xl font-semibold">
+    <section className="dashboard-card overflow-hidden">
+      <header className="dashboard-card__title-bar">
+        <h1>
           {t("utilityPanel")}
           {showAop ? isDispatch ? <DispatchAreaOfPlay /> : <span> - AOP: {areaOfPlay}</span> : null}
         </h1>
@@ -47,8 +47,8 @@ export function UtilityPanel({ children, isDispatch }: Props) {
                 width={20}
                 height={20}
                 className={classNames(
-                  "fill-current transition-colors text-gray-300",
-                  hasActiveDispatchers && "text-green-500",
+                  "fill-current transition-colors text-slate-500 dark:text-slate-400",
+                  hasActiveDispatchers && "text-green-400 dark:text-green-400",
                 )}
               />
             </span>
@@ -57,9 +57,11 @@ export function UtilityPanel({ children, isDispatch }: Props) {
         </div>
       </header>
 
-      {children}
+      <div className="dashboard-card__body">
+        <div className="flex flex-col gap-3">{children}</div>
+      </div>
 
-      <footer className="border-t-[1.5px] border-neutral-800 dark:border-secondary status-buttons-grid mt-2 px-4 py-2">
+      <footer className="dashboard-card__footer status-buttons-grid">
         <Button
           className="flex items-center gap-2"
           size="xs"
@@ -71,6 +73,6 @@ export function UtilityPanel({ children, isDispatch }: Props) {
 
         <EditDashboardLayoutModal />
       </footer>
-    </div>
+    </section>
   );
 }
