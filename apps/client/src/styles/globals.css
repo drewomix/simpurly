@@ -175,6 +175,461 @@ body.dark {
     align-items: start;
   }
 
+  .mark43-cad {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 1.75rem;
+    padding: 1.75rem;
+    border-radius: 1.75rem;
+    border: 1px solid rgba(37, 99, 235, 0.4);
+    background:
+      radial-gradient(circle at 10% -20%, rgba(59, 130, 246, 0.24), transparent 50%),
+      radial-gradient(circle at 85% 0%, rgba(14, 165, 233, 0.18), transparent 55%),
+      linear-gradient(160deg, rgba(5, 16, 34, 0.96) 0%, rgba(3, 9, 24, 0.96) 100%);
+    box-shadow: 0 42px 84px -46px rgba(2, 8, 23, 0.85);
+  }
+
+  .mark43-cad__shell {
+    display: grid;
+    gap: 1.5rem;
+    grid-template-columns: 21rem minmax(0, 1fr) 23rem;
+    align-items: start;
+  }
+
+  @media (max-width: 1600px) {
+    .mark43-cad__shell {
+      grid-template-columns: 19rem minmax(0, 1fr) 21rem;
+    }
+  }
+
+  @media (max-width: 1400px) {
+    .mark43-cad__shell {
+      grid-template-columns: minmax(0, 1fr);
+    }
+  }
+
+  .mark43-cad__column,
+  .mark43-cad__main {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    min-width: 0;
+  }
+
+  .mark43-cad__panel {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .mark43-cad__panel > * {
+    width: 100%;
+  }
+
+  .mark43-cad__panel--primary {
+    flex: 1;
+  }
+
+  .mark43-cad__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1.75rem;
+    flex-wrap: wrap;
+    padding: 1.5rem 2rem;
+    border-radius: 1.5rem;
+    border: 1px solid rgba(59, 130, 246, 0.45);
+    background: linear-gradient(
+      120deg,
+      rgba(10, 26, 52, 0.98),
+      rgba(4, 14, 32, 0.96) 65%,
+      rgba(3, 10, 24, 0.94) 100%
+    );
+    box-shadow: 0 34px 74px -46px rgba(2, 8, 23, 0.9);
+  }
+
+  .mark43-cad__brand-label {
+    margin: 0 0 0.4rem;
+    font-size: 0.7rem;
+    font-weight: 600;
+    letter-spacing: 0.42em;
+    text-transform: uppercase;
+    color: rgba(148, 163, 184, 0.85);
+  }
+
+  .mark43-cad__brand-title {
+    margin: 0;
+    font-size: 1.9rem;
+    font-weight: 700;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: #f8fafc;
+  }
+
+  .mark43-cad__status-group {
+    display: grid;
+    gap: 1rem;
+    grid-auto-flow: column;
+  }
+
+  @media (max-width: 1200px) {
+    .mark43-cad__status-group {
+      grid-auto-flow: row;
+      grid-template-columns: repeat(auto-fit, minmax(12rem, 1fr));
+    }
+  }
+
+  .mark43-cad__status {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+    min-width: 11rem;
+    padding: 1rem 1.25rem 1rem 1.5rem;
+    border-radius: 1.1rem;
+    border: 1px solid rgba(71, 85, 105, 0.45);
+    background: linear-gradient(160deg, rgba(12, 25, 46, 0.92), rgba(5, 13, 28, 0.94));
+    box-shadow: inset 0 1px 0 rgba(148, 163, 184, 0.1);
+  }
+
+  .mark43-cad__status::before {
+    content: "";
+    position: absolute;
+    left: 0.55rem;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 6px;
+    height: 65%;
+    border-radius: 999px;
+    background: rgba(148, 163, 184, 0.4);
+  }
+
+  .mark43-cad__status-label {
+    font-size: 0.68rem;
+    font-weight: 600;
+    letter-spacing: 0.26em;
+    text-transform: uppercase;
+    color: rgba(203, 213, 225, 0.8);
+  }
+
+  .mark43-cad__status-value {
+    font-size: 1.05rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    color: #f1f5f9;
+  }
+
+  .mark43-cad__status--signal::before {
+    background: linear-gradient(180deg, #38bdf8, rgba(56, 189, 248, 0.4));
+  }
+
+  .mark43-cad__status--panic::before {
+    background: linear-gradient(180deg, #f87171, rgba(239, 68, 68, 0.45));
+  }
+
+  .mark43-cad__status--active {
+    border-color: rgba(59, 130, 246, 0.55);
+    box-shadow: 0 16px 26px -22px rgba(37, 99, 235, 0.55);
+  }
+
+  .mark43-cad__toolbar {
+    border-radius: 1.5rem;
+    border: 1px solid rgba(37, 99, 235, 0.35);
+    background: linear-gradient(
+      115deg,
+      rgba(9, 20, 43, 0.95),
+      rgba(6, 16, 34, 0.94) 55%,
+      rgba(3, 9, 24, 0.94)
+    );
+    box-shadow: 0 28px 56px -44px rgba(2, 8, 23, 0.85);
+    padding: 1.35rem 1.6rem;
+  }
+
+  .mark43-cad__toolbar .modal-buttons-grid {
+    padding: 0;
+    gap: 0.75rem;
+    grid-template-columns: repeat(auto-fill, minmax(11rem, 1fr));
+  }
+
+  .mark43-cad .dashboard-card {
+    margin-bottom: 0;
+    border-radius: 1.5rem;
+    border-color: rgba(37, 99, 235, 0.35);
+    background: linear-gradient(170deg, rgba(10, 25, 49, 0.98), rgba(4, 12, 27, 0.95));
+    box-shadow: 0 34px 68px -42px rgba(2, 8, 23, 0.88);
+  }
+
+  .mark43-cad .dashboard-card::before {
+    background:
+      linear-gradient(140deg, rgba(56, 189, 248, 0.2), transparent 60%),
+      linear-gradient(220deg, rgba(37, 99, 235, 0.16), transparent 75%);
+  }
+
+  .mark43-cad .dashboard-card__title-bar {
+    border-bottom-color: rgba(59, 130, 246, 0.32);
+    background: linear-gradient(120deg, rgba(8, 47, 73, 0.7), rgba(3, 11, 28, 0.8));
+  }
+
+  .mark43-cad .dashboard-card__body {
+    background: linear-gradient(180deg, rgba(7, 19, 40, 0.65), rgba(5, 14, 30, 0.62));
+  }
+
+  .mark43-cad .dashboard-card__footer {
+    border-top-color: rgba(59, 130, 246, 0.26);
+    background: linear-gradient(180deg, rgba(15, 118, 110, 0.18), rgba(4, 12, 27, 0.6));
+  }
+
+  .mark43-cad .dashboard-card__empty {
+    color: rgba(226, 232, 240, 0.7);
+  }
+
+  .mark43-cad table {
+    border-collapse: separate;
+    border-spacing: 0;
+    background: rgba(4, 10, 22, 0.75);
+    border-radius: 1.1rem;
+    overflow: hidden;
+  }
+
+  .mark43-cad table thead tr {
+    background: linear-gradient(180deg, rgba(11, 30, 58, 0.9), rgba(6, 18, 36, 0.9));
+    text-transform: uppercase;
+    letter-spacing: 0.16em;
+  }
+
+  .mark43-cad table thead th {
+    font-weight: 600;
+    font-size: 0.72rem;
+    color: rgba(203, 213, 225, 0.8);
+  }
+
+  .mark43-cad table tbody tr:nth-child(even) {
+    background: rgba(4, 10, 22, 0.78);
+  }
+
+  .mark43-cad table tbody tr:hover {
+    background: rgba(37, 99, 235, 0.08);
+  }
+
+  .mark43-cad__shell--officer {
+    grid-template-columns: 24rem minmax(0, 1fr) 22rem;
+  }
+
+  @media (max-width: 1700px) {
+    .mark43-cad__shell--officer {
+      grid-template-columns: 21rem minmax(0, 1fr) 20rem;
+    }
+  }
+
+  @media (max-width: 1500px) {
+    .mark43-cad__shell--officer {
+      grid-template-columns: 18rem minmax(0, 1fr) 18rem;
+    }
+  }
+
+  @media (max-width: 1400px) {
+    .mark43-cad__shell--officer {
+      grid-template-columns: minmax(0, 1fr);
+    }
+  }
+
+  .mark43-officer__header {
+    align-items: flex-start;
+  }
+
+  .mark43-officer__status-group {
+    gap: 1.2rem;
+    grid-auto-flow: row;
+    grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr));
+  }
+
+  .mark43-officer__status {
+    min-width: 0;
+    padding: 1.1rem 1.35rem 1.1rem 1.8rem;
+    border-color: rgba(59, 130, 246, 0.28);
+    background: linear-gradient(160deg, rgba(12, 26, 52, 0.92), rgba(6, 16, 34, 0.94));
+  }
+
+  .mark43-officer__status::before {
+    left: 0.9rem;
+    height: 70%;
+    background: rgba(96, 165, 250, 0.32);
+  }
+
+  .mark43-cad__status--unit::before {
+    background: linear-gradient(180deg, rgba(96, 165, 250, 0.65), rgba(37, 99, 235, 0.45));
+  }
+
+  .mark43-cad__status--tone::before {
+    background: linear-gradient(180deg, rgba(34, 197, 94, 0.65), rgba(21, 128, 61, 0.45));
+  }
+
+  .mark43-officer__panel {
+    gap: 0;
+  }
+
+  .mark43-officer__self-initiate {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    padding: 1.75rem;
+    border-radius: 1.5rem;
+    border: 1px solid rgba(37, 99, 235, 0.35);
+    background:
+      radial-gradient(circle at 0% 0%, rgba(59, 130, 246, 0.16), transparent 55%),
+      radial-gradient(circle at 100% 0%, rgba(14, 165, 233, 0.12), transparent 55%),
+      linear-gradient(165deg, rgba(7, 17, 34, 0.96), rgba(5, 12, 26, 0.94));
+    box-shadow: 0 36px 72px -48px rgba(2, 8, 23, 0.85);
+  }
+
+  .mark43-officer__self-initiate-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+  }
+
+  .mark43-officer__self-initiate-label {
+    margin: 0 0 0.4rem;
+    font-size: 0.7rem;
+    letter-spacing: 0.28em;
+    font-weight: 600;
+    text-transform: uppercase;
+    color: rgba(148, 163, 184, 0.75);
+  }
+
+  .mark43-officer__self-initiate-title {
+    margin: 0;
+    font-size: 1.45rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: #f8fafc;
+  }
+
+  .mark43-officer__self-initiate-meta {
+    padding: 0.4rem 1.2rem;
+    border-radius: 999px;
+    border: 1px solid rgba(59, 130, 246, 0.28);
+    font-size: 0.75rem;
+    letter-spacing: 0.32em;
+    text-transform: uppercase;
+    color: rgba(191, 219, 254, 0.75);
+    background: linear-gradient(160deg, rgba(15, 23, 42, 0.65), rgba(8, 20, 38, 0.7));
+    box-shadow: inset 0 1px 0 rgba(148, 163, 184, 0.12);
+    white-space: nowrap;
+  }
+
+  .mark43-officer__self-initiate-actions {
+    border-radius: 1.2rem;
+    border: 1px solid rgba(37, 99, 235, 0.28);
+    background: linear-gradient(170deg, rgba(7, 19, 38, 0.9), rgba(4, 12, 24, 0.92));
+    padding: 1.4rem 1.3rem;
+    box-shadow: inset 0 1px 0 rgba(148, 163, 184, 0.08);
+  }
+
+  .mark43-officer__self-initiate-actions > .py-2 {
+    padding: 0;
+  }
+
+  .mark43-officer__self-initiate-actions .modal-buttons-grid {
+    margin-top: 0;
+    gap: 0.85rem;
+    grid-template-columns: repeat(auto-fit, minmax(11.5rem, 1fr));
+  }
+
+  .mark43-officer__self-initiate-actions .modal-buttons-grid > :is(button, a) {
+    border-radius: 1rem;
+    border: 1px solid rgba(59, 130, 246, 0.25);
+    background: linear-gradient(150deg, rgba(10, 24, 45, 0.92), rgba(7, 18, 36, 0.9));
+    color: #e2ecff;
+    font-weight: 500;
+    min-height: 3.4rem;
+    padding: 0.85rem 1.1rem;
+    box-shadow: 0 20px 38px -28px rgba(2, 8, 23, 0.85);
+    transition:
+      border-color 0.2s ease,
+      box-shadow 0.2s ease,
+      background 0.2s ease;
+  }
+
+  .mark43-officer__self-initiate-actions .modal-buttons-grid > :is(button, a):hover,
+  .mark43-officer__self-initiate-actions .modal-buttons-grid > :is(button, a):focus-visible {
+    border-color: rgba(96, 165, 250, 0.55);
+    background: linear-gradient(150deg, rgba(15, 44, 78, 0.95), rgba(9, 26, 49, 0.92));
+    box-shadow: 0 24px 46px -30px rgba(37, 99, 235, 0.55);
+  }
+
+  .mark43-officer__status-grid {
+    margin: 0;
+    padding: 1.4rem 1.3rem;
+    border-radius: 1.2rem;
+    border: 1px solid rgba(37, 99, 235, 0.28);
+    background: linear-gradient(175deg, rgba(7, 18, 36, 0.94), rgba(5, 14, 30, 0.92));
+    backdrop-filter: blur(10px);
+    gap: 0.9rem;
+    grid-template-columns: repeat(auto-fit, minmax(10.5rem, 1fr));
+    box-shadow: inset 0 1px 0 rgba(148, 163, 184, 0.08);
+  }
+
+  .mark43-officer__status-grid li {
+    list-style: none;
+  }
+
+  .mark43-officer__status-grid button {
+    border-radius: 1rem;
+    border: 1px solid rgba(59, 130, 246, 0.25);
+    background: linear-gradient(145deg, rgba(9, 22, 41, 0.9), rgba(6, 15, 30, 0.9));
+    color: #dbeafe;
+    font-weight: 500;
+    min-height: 3.1rem;
+    box-shadow: 0 16px 36px -28px rgba(2, 8, 23, 0.8);
+    transition:
+      border-color 0.2s ease,
+      box-shadow 0.2s ease,
+      background 0.2s ease;
+  }
+
+  .mark43-officer__status-grid button:hover,
+  .mark43-officer__status-grid button:focus-visible {
+    border-color: rgba(96, 165, 250, 0.55);
+    background: linear-gradient(150deg, rgba(13, 35, 62, 0.95), rgba(8, 21, 40, 0.95));
+    box-shadow: 0 22px 44px -30px rgba(37, 99, 235, 0.5);
+  }
+
+  .mark43-officer__layout-controls {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 0.75rem;
+  }
+
+  .mark43-officer__layout-button {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    border-radius: 999px;
+    border: 1px solid rgba(59, 130, 246, 0.35);
+    background: linear-gradient(160deg, rgba(16, 38, 67, 0.9), rgba(10, 24, 46, 0.9));
+    color: #e2ecff;
+    font-weight: 600;
+    padding: 0.55rem 1.4rem;
+    box-shadow: 0 22px 42px -32px rgba(37, 99, 235, 0.6);
+    text-transform: uppercase;
+    letter-spacing: 0.18em;
+  }
+
+  .mark43-officer__layout-button svg {
+    width: 16px;
+    height: 16px;
+  }
+
+  .mark43-officer__layout-button:hover,
+  .mark43-officer__layout-button:focus-visible {
+    border-color: rgba(96, 165, 250, 0.55);
+    background: linear-gradient(160deg, rgba(20, 46, 78, 0.95), rgba(12, 31, 57, 0.95));
+  }
+
   .dashboard-action-primary {
     @apply rounded-lg border border-indigo-400/40 bg-indigo-500/80 px-4 py-2 text-sm font-semibold text-white shadow-[0_16px_32px_rgba(99,102,241,0.32)] transition-colors duration-200;
   }
