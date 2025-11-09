@@ -28,12 +28,12 @@ export function ActiveUnitsSearch({ totalCount, isLoading, type }: Props) {
   }));
 
   return (
-    <div className="px-4 mt-2">
+    <div className="space-y-4">
       {totalCount > 0 ? (
         <Tooltip.Provider delayDuration={0}>
           <Tooltip.Root>
             <Tooltip.Trigger>
-              <p className="text-neutral-700 dark:text-gray-400 flex items-center gap-2 mt-1">
+              <p className="mt-1 flex items-center gap-2 text-sm text-slate-600 dark:text-slate-400">
                 <InfoCircleFill />
                 {t("showingOnlyLatest12Units")}
               </p>
@@ -41,31 +41,31 @@ export function ActiveUnitsSearch({ totalCount, isLoading, type }: Props) {
 
             <Tooltip.Content
               align="start"
-              className="bg-gray-200 dark:border dark:border-secondary dark:bg-tertiary shadow-lg w-full max-w-lg p-3 rounded-md dark:text-white hover-card animate-enter z-50"
+              className="z-50 max-w-lg rounded-xl border border-slate-200/70 bg-white/90 px-4 py-3 text-sm font-medium text-slate-700 shadow-xl backdrop-blur-md dark:border-slate-700/70 dark:bg-slate-900/85 dark:text-slate-200"
             >
-              <p className="text-neutral-800 dark:text-gray-300 mb-0 font-medium">
-                {t("showingOnlyLatest12UnitsDescription")}
-              </p>
+              <p className="mb-0 leading-relaxed">{t("showingOnlyLatest12UnitsDescription")}</p>
             </Tooltip.Content>
           </Tooltip.Root>
         </Tooltip.Provider>
       ) : null}
 
       {(showFilters as boolean) ? (
-        <TextField
-          label={common("search")}
-          className="w-full relative mt-3 mb-1"
-          name="search"
-          value={search as string}
-          onChange={(value) => setSearch(setSearchType, value)}
-          placeholder="Name, Badge Number, Status, ..."
-        >
-          {isLoading ? (
-            <span className="absolute top-[2.4rem] right-2.5">
-              <Loader />
-            </span>
-          ) : null}
-        </TextField>
+        <div className="relative">
+          <TextField
+            label={common("search")}
+            className="w-full"
+            name="search"
+            value={search as string}
+            onChange={(value) => setSearch(setSearchType, value)}
+            placeholder="Name, Badge Number, Status, ..."
+          >
+            {isLoading ? (
+              <span className="absolute right-3 top-[2.4rem]">
+                <Loader />
+              </span>
+            ) : null}
+          </TextField>
+        </div>
       ) : null}
     </div>
   );

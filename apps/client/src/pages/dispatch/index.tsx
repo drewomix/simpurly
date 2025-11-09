@@ -143,14 +143,16 @@ export default function DispatchDashboard(props: DispatchPageProps) {
   });
 
   return (
-    <Layout permissions={{ permissions: [Permissions.Dispatch] }} className="dark:text-white">
+    <Layout permissions={{ permissions: [Permissions.Dispatch] }}>
       <Title renderLayoutTitle={false}>{t("dispatch")}</Title>
 
       <DispatchHeader userActiveDispatcher={props.userActiveDispatcher} />
 
-      {sortedCards.map((card) =>
-        card.isEnabled ? <React.Fragment key={card.type}>{card.children}</React.Fragment> : null,
-      )}
+      <div className="dispatch-grid">
+        {sortedCards.map((card) =>
+          card.isEnabled ? <React.Fragment key={card.type}>{card.children}</React.Fragment> : null,
+        )}
+      </div>
 
       <DispatchModals />
     </Layout>

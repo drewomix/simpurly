@@ -36,29 +36,32 @@ export function ActiveCallsHeader({ calls, asyncTable }: Props) {
 
   return (
     <>
-      <header className="flex items-center justify-between p-2 px-4 bg-gray-200 dark:bg-secondary">
-        <h1 className="text-xl font-semibold">{t("active911Calls")}</h1>
-        <div className="flex gap-1">
+      <header className="dashboard-card__title-bar">
+        <h1>{t("active911Calls")}</h1>
+        <div className="flex gap-2">
           <Button
             variant={null}
-            className="bg-gray-500 hover:bg-gray-600 dark:border dark:border-quinary dark:bg-tertiary dark:hover:brightness-125 text-white"
+            className="dashboard-action-primary"
             onPress={handleCreateIncident}
             isDisabled={isDispatchRoute ? !hasActiveDispatchers : false}
           >
             {t("create911Call")}
           </Button>
           <Button
-            variant="cancel"
+            variant={null}
             className={classNames(
-              "px-2 dark:border dark:border-quinary dark:bg-tertiary dark:hover:brightness-125 group",
-              showFilters && "dark:!bg-secondary !bg-gray-500",
+              "dashboard-action-neutral !px-3 !py-2",
+              showFilters && "border-indigo-400/80 bg-indigo-500/40 text-white",
             )}
             onPress={() => setShowFilters(!showFilters)}
             title={t("callFilters")}
             disabled={calls.length <= 0}
           >
             <Filter
-              className={classNames("group-hover:fill-white", showFilters && "text-white")}
+              className={classNames(
+                "text-slate-500 dark:text-slate-300",
+                showFilters && "text-white",
+              )}
               aria-label={t("callFilters")}
               size={18}
             />
@@ -67,7 +70,7 @@ export function ActiveCallsHeader({ calls, asyncTable }: Props) {
       </header>
 
       {showFilters ? (
-        <div className="px-4">
+        <div className="dashboard-card__section pt-0">
           <CallsFilters asyncTable={asyncTable} calls={calls} />
         </div>
       ) : null}

@@ -59,7 +59,7 @@ export function Table<TData extends _RowData>({
 
   const tableActionsAlignment = user?.tableActionsAlignment ?? TableActionsAlignment.LEFT;
   const stickyBgColor = features?.isWithinCardOrModal
-    ? "bg-gray-100 dark:bg-tertiary"
+    ? "bg-slate-100/70 dark:bg-slate-900/70"
     : "dark:bg-primary bg-white";
 
   const tableColumns = React.useMemo(() => {
@@ -167,7 +167,7 @@ export function Table<TData extends _RowData>({
           message={tableState.pagination.error.message || "Unable to fetch this route"}
         />
       ) : (
-        <table className="w-full whitespace-nowrap max-h-64">
+        <table className="w-full max-h-64 whitespace-nowrap text-sm text-slate-600 dark:text-slate-200">
           <thead>
             {table.getHeaderGroups().map((headerGroup) => (
               <tr key={headerGroup.id}>

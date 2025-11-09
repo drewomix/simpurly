@@ -110,15 +110,15 @@ export function ActiveIncidents() {
   }
 
   return (
-    <div className="mb-3 rounded-md card">
-      <header className="flex items-center justify-between p-2 px-4 bg-gray-200 dark:bg-secondary">
-        <h1 className="text-xl font-semibold">{t("activeIncidents")}</h1>
+    <section className="dashboard-card">
+      <header className="dashboard-card__title-bar">
+        <h1>{t("activeIncidents")}</h1>
 
         {isDispatch ? (
           <div>
             <Button
               variant={null}
-              className="bg-gray-500 hover:bg-gray-600 dark:border dark:border-quinary dark:bg-tertiary dark:hover:brightness-125 text-white"
+              className="dashboard-action-primary"
               onPress={handleCreateIncident}
               disabled={!hasActiveDispatchers}
             >
@@ -128,64 +128,66 @@ export function ActiveIncidents() {
         ) : null}
       </header>
 
-      {asyncTable.noItemsAvailable ? (
-        <p className="px-4 py-2 text-neutral-700 dark:text-gray-300">{t("noActiveIncidents")}</p>
-      ) : (
-        <Table
-          isLoading={asyncTable.isInitialLoading}
-          tableState={tableState}
-          features={{ isWithinCardOrModal: true }}
-          containerProps={{ className: "mb-3 mx-4" }}
-          data={activeIncidents
-            .sort((a, b) => compareDesc(new Date(a.updatedAt), new Date(b.updatedAt)))
-            .map((incident) => {
-              const isUnitAssigned = incident.unitsInvolved.some(
-                (v) => v.unit?.id === activeUnitForRoute?.id,
-              );
+      <div className="dashboard-card__body">
+        {asyncTable.noItemsAvailable ? (
+          <p className="dashboard-card__empty">{t("noActiveIncidents")}</p>
+        ) : (
+          <Table
+            isLoading={asyncTable.isInitialLoading}
+            tableState={tableState}
+            features={{ isWithinCardOrModal: true }}
+            containerProps={{ className: "px-0" }}
+            data={activeIncidents
+              .sort((a, b) => compareDesc(new Date(a.updatedAt), new Date(b.updatedAt)))
+              .map((incident) => {
+                const isUnitAssigned = incident.unitsInvolved.some(
+                  (v) => v.unit?.id === activeUnitForRoute?.id,
+                );
 
-              return {
-                rowProps: {
-                  className: classNames(isUnitAssigned && "bg-gray-200 dark:bg-amber-900"),
-                },
-                id: incident.id,
-                caseNumber: `#${incident.caseNumber}`,
-                unitsInvolved: (
-                  <InvolvedUnitsColumn
-                    isDispatch={isDispatch}
-                    handleAssignUnassignToIncident={handleAssignUnassignToIncident}
-                    incident={incident}
-                  />
-                ),
-                createdAt: <FullDate>{incident.createdAt}</FullDate>,
-                firearmsInvolved: common(yesOrNoText(incident.firearmsInvolved)),
-                injuriesOrFatalities: common(yesOrNoText(incident.injuriesOrFatalities)),
-                arrestsMade: common(yesOrNoText(incident.arrestsMade)),
-                situationCode: incident.situationCode?.value.value ?? common("none"),
-                description: <CallDescription data={incident} />,
-                actions: (
-                  <ActiveIncidentsActionsColumn
-                    handleAssignUnassignToIncident={handleAssignUnassignToIncident}
-                    setTempIncident={setTempIncident}
-                    unit={activeUnitForRoute}
-                    isUnitAssigned={isUnitAssigned}
-                    incident={incident}
-                  />
-                ),
-              };
-            })}
-          columns={[
-            { header: t("caseNumber"), accessorKey: "caseNumber" },
-            { header: t("unitsInvolved"), accessorKey: "unitsInvolved" },
-            { header: t("firearmsInvolved"), accessorKey: "firearmsInvolved" },
-            { header: t("injuriesOrFatalities"), accessorKey: "injuriesOrFatalities" },
-            { header: t("arrestsMade"), accessorKey: "arrestsMade" },
-            { header: t("situationCode"), accessorKey: "situationCode" },
-            { header: common("description"), accessorKey: "description" },
-            { header: common("createdAt"), accessorKey: "createdAt" },
-            { header: common("actions"), accessorKey: "actions" },
-          ]}
-        />
-      )}
+                return {
+                  rowProps: {
+                    className: classNames(isUnitAssigned && "bg-gray-200 dark:bg-amber-900"),
+                  },
+                  id: incident.id,
+                  caseNumber: `#${incident.caseNumber}`,
+                  unitsInvolved: (
+                    <InvolvedUnitsColumn
+                      isDispatch={isDispatch}
+                      handleAssignUnassignToIncident={handleAssignUnassignToIncident}
+                      incident={incident}
+                    />
+                  ),
+                  createdAt: <FullDate>{incident.createdAt}</FullDate>,
+                  firearmsInvolved: common(yesOrNoText(incident.firearmsInvolved)),
+                  injuriesOrFatalities: common(yesOrNoText(incident.injuriesOrFatalities)),
+                  arrestsMade: common(yesOrNoText(incident.arrestsMade)),
+                  situationCode: incident.situationCode?.value.value ?? common("none"),
+                  description: <CallDescription data={incident} />,
+                  actions: (
+                    <ActiveIncidentsActionsColumn
+                      handleAssignUnassignToIncident={handleAssignUnassignToIncident}
+                      setTempIncident={setTempIncident}
+                      unit={activeUnitForRoute}
+                      isUnitAssigned={isUnitAssigned}
+                      incident={incident}
+                    />
+                  ),
+                };
+              })}
+            columns={[
+              { header: t("caseNumber"), accessorKey: "caseNumber" },
+              { header: t("unitsInvolved"), accessorKey: "unitsInvolved" },
+              { header: t("firearmsInvolved"), accessorKey: "firearmsInvolved" },
+              { header: t("injuriesOrFatalities"), accessorKey: "injuriesOrFatalities" },
+              { header: t("arrestsMade"), accessorKey: "arrestsMade" },
+              { header: t("situationCode"), accessorKey: "situationCode" },
+              { header: common("description"), accessorKey: "description" },
+              { header: common("createdAt"), accessorKey: "createdAt" },
+              { header: common("actions"), accessorKey: "actions" },
+            ]}
+          />
+        )}
+      </div>
 
       {isDispatch ? (
         <Droppable<{ incident: LeoIncident; unit: IncidentInvolvedUnit }>
@@ -197,7 +199,7 @@ export function ActiveIncidents() {
         >
           <div
             className={classNames(
-              "grid place-items-center z-50 border-2 border-slate-500 dark:bg-quinary fixed bottom-3 left-3 right-4 h-60 shadow-sm rounded-md transition-opacity",
+              "grid place-items-center z-50 border border-indigo-400/50 bg-indigo-500/20 backdrop-blur-md fixed bottom-3 left-3 right-4 h-60 shadow-lg rounded-2xl transition-opacity text-slate-900 dark:text-slate-100",
               draggingUnit === "incident"
                 ? "pointer-events-all opacity-100"
                 : "pointer-events-none opacity-0",
@@ -242,6 +244,6 @@ export function ActiveIncidents() {
         deleteText={t("endIncident")}
         onClose={() => setTempIncident("hide")}
       />
-    </div>
+    </section>
   );
 }

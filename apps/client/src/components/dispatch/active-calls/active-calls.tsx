@@ -132,14 +132,14 @@ function Active911Calls({ initialData }: Props) {
   }
 
   return (
-    <div className="rounded-md card mb-3">
+    <section className="dashboard-card">
       {audio.addedToCallAudio}
       {audio.incomingCallAudio}
       <ActiveCallsHeader asyncTable={asyncTable} calls={calls} />
 
-      <div className="px-4">
+      <div className="dashboard-card__body">
         {!hasCalls ? (
-          <p className="py-2 text-neutral-700 dark:text-gray-300">{t("no911Calls")}</p>
+          <p className="dashboard-card__empty">{t("no911Calls")}</p>
         ) : (
           <Table
             tableState={tableState}
@@ -206,7 +206,7 @@ function Active911Calls({ initialData }: Props) {
         <Droppable onDrop={handleUnassign} accepts={[DndActions.UnassignUnitFrom911Call]}>
           <div
             className={classNames(
-              "grid place-items-center z-50 border-2 border-slate-500 bg-gray-400 dark:bg-quinary fixed bottom-3 left-3 right-4 h-60 shadow-sm rounded-md transition-opacity",
+              "grid place-items-center z-50 border border-indigo-400/50 bg-indigo-500/20 backdrop-blur-md fixed bottom-3 left-3 right-4 h-60 shadow-lg rounded-2xl transition-opacity text-slate-900 dark:text-slate-100",
               draggingUnit === "call"
                 ? "pointer-events-all opacity-100"
                 : "pointer-events-none opacity-0",
@@ -223,7 +223,7 @@ function Active911Calls({ initialData }: Props) {
         onClose={() => call911State.setCurrentlySelectedCall(null)}
         call={call911State.currentlySelectedCall}
       />
-    </div>
+    </section>
   );
 }
 
