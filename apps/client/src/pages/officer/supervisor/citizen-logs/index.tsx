@@ -12,6 +12,7 @@ import { CitizenLogsTab } from "components/leo/citizen-logs/citizen-logs-tab";
 import { PendingCitizenRecordsTab } from "components/leo/citizen-logs/pending-citizen-logs-tab";
 import { useFeatureEnabled } from "hooks/useFeatureEnabled";
 import type { GetManagePendingCitizenRecords, GetManageRecordLogsData } from "@snailycad/types/api";
+import { Mark43OfficerLayout } from "components/mark43/mark43-officer-layout";
 
 export type CitizenLog = RecordLog & { citizen: Citizen };
 interface Props {
@@ -35,21 +36,22 @@ export default function CitizenLogs(props: Props) {
       permissions={{
         permissions: [Permissions.ViewCitizenLogs, Permissions.DeleteCitizenRecords],
       }}
-      className="dark:text-white"
+      className="mark43-cad-layout"
     >
-      <header className="mb-5">
-        <Title>{t("citizenLogs")}</Title>
-        <p className="max-w-2xl mt-2 text-neutral-700 dark:text-gray-400">
-          {t("citizenLogsDescription")}
-        </p>
-      </header>
+      <Title renderLayoutTitle={false}>{t("citizenLogs")}</Title>
 
-      <TabList tabs={TABS}>
-        <CitizenLogsTab citizens={props.citizens} />
-        {CITIZEN_RECORD_APPROVAL ? (
-          <PendingCitizenRecordsTab pendingCitizenRecords={props.pendingCitizenRecords} />
-        ) : null}
-      </TabList>
+      <Mark43OfficerLayout
+        label={t("officer")}
+        title={t("citizenLogs")}
+        subtitle={t("citizenLogsDescription")}
+      >
+        <TabList tabs={TABS}>
+          <CitizenLogsTab citizens={props.citizens} />
+          {CITIZEN_RECORD_APPROVAL ? (
+            <PendingCitizenRecordsTab pendingCitizenRecords={props.pendingCitizenRecords} />
+          ) : null}
+        </TabList>
+      </Mark43OfficerLayout>
     </Layout>
   );
 }

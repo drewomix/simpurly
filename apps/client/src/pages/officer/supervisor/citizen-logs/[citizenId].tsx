@@ -14,12 +14,13 @@ import { useRouter } from "next/router";
 import { ViolationsColumn } from "components/leo/ViolationsColumn";
 import { useGenerateCallsign } from "hooks/useGenerateCallsign";
 import Link from "next/link";
-import { Button, FullDate, Loader, Status, buttonVariants } from "@snailycad/ui";
+import { Button, FullDate, Loader, Status } from "@snailycad/ui";
 import { ArrowLeft } from "react-bootstrap-icons";
 import { RecordsCaseNumberColumn } from "components/leo/records-case-number-column";
 import { RecordsStatsColumn } from "components/leo/records-stats-column";
 import { downloadFile } from "components/leo/modals/NameSearchModal/tabs/records-tab";
 import { getAPIUrl } from "@snailycad/utils/api-url";
+import { Mark43OfficerLayout } from "components/mark43/mark43-officer-layout";
 
 export type CitizenLog = RecordLog & { citizen: Citizen };
 interface Props {
@@ -79,38 +80,41 @@ export default function CitizenLogs(props: Props) {
       permissions={{
         permissions: [Permissions.ViewCitizenLogs, Permissions.DeleteCitizenRecords],
       }}
-      className="dark:text-white"
+      className="mark43-cad-layout"
     >
-      <div className="flex items-center justify-between mt-5">
-        <Title>{t("citizenLogs")}</Title>
+      <Title renderLayoutTitle={false}>{t("citizenLogs")}</Title>
 
-        <div className="flex items-center gap-2">
-          <Button
-            className="flex items-center gap-2"
-            isDisabled={exportState === "loading"}
-            onPress={handleExportClick}
-          >
-            {exportState === "loading" ? <Loader /> : null}
-            {t("exportCriminalRecord")}
-          </Button>
+      <Mark43OfficerLayout
+        label={t("officer")}
+        title={t("citizenLogs")}
+        actions={
+          <>
+            <Button
+              className="mark43-cad__pill-button mark43-cad__pill-button--compact flex items-center gap-2"
+              isDisabled={exportState === "loading"}
+              onPress={handleExportClick}
+            >
+              {exportState === "loading" ? <Loader /> : null}
+              {t("exportCriminalRecord")}
+            </Button>
 
-          <Link
-            className={buttonVariants({ className: "flex items-center gap-2" })}
-            href="/officer/supervisor/citizen-logs"
-          >
-            <ArrowLeft /> {t("viewAllRecordLogs")}
-          </Link>
-        </div>
-      </div>
+            <Link
+              className="mark43-cad__pill-button mark43-cad__pill-button--compact flex items-center gap-2"
+              href="/officer/supervisor/citizen-logs"
+            >
+              <ArrowLeft /> {t("viewAllRecordLogs")}
+            </Link>
+          </>
+        }
+      >
+        <Table
+          tableState={tableState}
+          data={asyncTable.items.map((item) => {
+            const type = item.records !== null ? TYPE_LABELS[item.records.type] : t("warrant");
+            const createdAt = item.records?.createdAt ?? item.warrant?.createdAt;
+            const officer = item.records?.officer ?? item.warrant?.officer;
 
-      <Table
-        tableState={tableState}
-        data={asyncTable.items.map((item) => {
-          const type = item.records !== null ? TYPE_LABELS[item.records.type] : t("warrant");
-          const createdAt = item.records?.createdAt ?? item.warrant?.createdAt;
-          const officer = item.records?.officer ?? item.warrant?.officer;
-
-          const extra = item.records
+            const extra = item.records
             ? {
                 caseNumber: <RecordsCaseNumberColumn record={item.records} />,
                 status: <Status fallback="—">{item.records.status}</Status>,
@@ -150,7 +154,8 @@ export default function CitizenLogs(props: Props) {
           { header: t("violations"), accessorKey: "violations" },
           { header: common("createdAt"), accessorKey: "createdAt" },
         ]}
-      />
+        />
+      </Mark43OfficerLayout>
     </Layout>
   );
 }

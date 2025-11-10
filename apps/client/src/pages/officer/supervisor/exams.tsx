@@ -1,6 +1,6 @@
 import * as React from "react";
 import { useTranslations } from "use-intl";
-import { Button, FullDate, Status } from "@snailycad/ui";
+import { Button, FullDate, Loader, Status, TextField } from "@snailycad/ui";
 import { Layout } from "components/Layout";
 import { getSessionUser } from "lib/auth";
 import { getTranslations } from "lib/getTranslation";
@@ -19,7 +19,7 @@ import useFetch from "lib/useFetch";
 import { useAsyncTable } from "hooks/shared/table/use-async-table";
 import type { GetLicenseExamsData, DeleteLicenseExamByIdData } from "@snailycad/types/api";
 import { useTemporaryItem } from "hooks/shared/useTemporaryItem";
-import { SearchArea } from "components/shared/search/search-area";
+import { Mark43OfficerLayout } from "components/mark43/mark43-officer-layout";
 
 interface Props {
   data: GetLicenseExamsData;
@@ -30,6 +30,7 @@ export default function CitizenLogs({ data }: Props) {
   const { hasPermissions } = usePermission();
   const modalState = useModal();
   const t = useTranslations();
+  const leo = useTranslations("Leo");
   const common = useTranslations("Common");
   const { state, execute } = useFetch();
 
@@ -80,42 +81,67 @@ export default function CitizenLogs({ data }: Props) {
     modalState.openModal(ModalIds.ManageExam);
   }
 
+  const showResultsMeta =
+    search.length > 0 && asyncTable.pagination.totalDataCount !== data.totalCount;
+
   return (
     <Layout
       permissions={{
         permissions: [Permissions.ViewLicenseExams, Permissions.ManageLicenseExams],
       }}
-      className="dark:text-white"
+      className="mark43-cad-layout"
     >
-      <header className="flex items-center justify-between">
-        <Title className="!mb-0">{t("licenseExams.exams")}</Title>
+      <Title renderLayoutTitle={false}>{t("licenseExams.exams")}</Title>
 
-        {hasManagePermissions ? (
-          <div>
-            <Button onPress={() => modalState.openModal(ModalIds.ManageExam)}>
+      <Mark43OfficerLayout
+        label={leo("officer")}
+        title={t("licenseExams.exams")}
+        actions={
+          hasManagePermissions ? (
+            <Button
+              className="mark43-cad__pill-button"
+              onPress={() => modalState.openModal(ModalIds.ManageExam)}
+            >
               {t("licenseExams.createExam")}
             </Button>
+          ) : null
+        }
+        toolbar={
+          <div className="mark43-cad__toolbar-row w-full">
+            <TextField
+              value={search}
+              onChange={(value) => setSearch(value)}
+              label={common("search")}
+              className="flex-1 min-w-[16rem]"
+            >
+              {asyncTable.isLoading ? (
+                <span className="absolute top-[2.4rem] right-2.5">
+                  <Loader />
+                </span>
+              ) : null}
+            </TextField>
           </div>
+        }
+      >
+        {showResultsMeta ? (
+          <p className="mark43-cad__results-meta">
+            {common.rich("showingXResults", {
+              amount: asyncTable.pagination.totalDataCount,
+            })}
+          </p>
         ) : null}
-      </header>
 
-      <SearchArea
-        totalCount={data.totalCount}
-        search={{ search, setSearch }}
-        asyncTable={asyncTable}
-      />
+        {asyncTable.noItemsAvailable ? (
+          <p className="mark43-cad__empty">{t("licenseExams.noExams")}</p>
+        ) : (
+          <Table
+            tableState={tableState}
+            data={asyncTable.items.map((exam) => {
+              const hasPassedOrFailed = exam.status !== LicenseExamStatus.IN_PROGRESS;
 
-      {asyncTable.noItemsAvailable ? (
-        <p className="mt-5">{t("licenseExams.noExams")}</p>
-      ) : (
-        <Table
-          tableState={tableState}
-          data={asyncTable.items.map((exam) => {
-            const hasPassedOrFailed = exam.status !== LicenseExamStatus.IN_PROGRESS;
-
-            return {
-              id: exam.id,
-              rowProps: {
+              return {
+                id: exam.id,
+                rowProps: {
                 className: hasPassedOrFailed ? "opacity-60" : undefined,
               },
               type: exam.type,
@@ -153,19 +179,20 @@ export default function CitizenLogs({ data }: Props) {
               ),
             };
           })}
-          columns={[
-            { header: common("type"), accessorKey: "type" },
-            { header: t("Leo.citizen"), accessorKey: "citizen" },
-            { header: t("licenseExams.theoryExam"), accessorKey: "theoryExam" },
-            { header: t("licenseExams.practiceExam"), accessorKey: "practiceExam" },
-            { header: t("Leo.status"), accessorKey: "status" },
-            { header: t("licenseExams.categories"), accessorKey: "categories" },
-            { header: t("Leo.license"), accessorKey: "license" },
-            { header: common("createdAt"), accessorKey: "createdAt" },
-            hasManagePermissions ? { header: common("actions"), accessorKey: "actions" } : null,
-          ]}
-        />
-      )}
+            columns={[
+              { header: common("type"), accessorKey: "type" },
+              { header: t("Leo.citizen"), accessorKey: "citizen" },
+              { header: t("licenseExams.theoryExam"), accessorKey: "theoryExam" },
+              { header: t("licenseExams.practiceExam"), accessorKey: "practiceExam" },
+              { header: t("Leo.status"), accessorKey: "status" },
+              { header: t("licenseExams.categories"), accessorKey: "categories" },
+              { header: t("Leo.license"), accessorKey: "license" },
+              { header: common("createdAt"), accessorKey: "createdAt" },
+              hasManagePermissions ? { header: common("actions"), accessorKey: "actions" } : null,
+            ]}
+          />
+        )}
+      </Mark43OfficerLayout>
 
       <AlertModal
         title={t("licenseExams.deleteExam")}
