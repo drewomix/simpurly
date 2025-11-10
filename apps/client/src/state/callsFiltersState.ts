@@ -16,6 +16,9 @@ interface CallFiltersState {
   search: string;
   setSearch(search: string): void;
 
+  status: "all" | "pending" | "accepted" | "declined";
+  setStatus(status: "all" | "pending" | "accepted" | "declined"): void;
+
   department: string | null;
   setDepartment(department: string | null): void;
 
@@ -33,6 +36,9 @@ export const useCallsFilters = createWithEqualityFn<CallFiltersState>()(
 
     search: "",
     setSearch: (search) => set({ search }),
+
+    status: "all",
+    setStatus: (status) => set({ status }),
 
     assignedUnit: null,
     setAssignedUnit: (assignedUnit) => set({ assignedUnit }),

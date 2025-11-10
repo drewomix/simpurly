@@ -8,11 +8,11 @@ import { useLeoState } from "state/leo-state";
 import { useEmsFdState } from "state/ems-fd-state";
 import { useFeatureEnabled } from "hooks/useFeatureEnabled";
 import { useCallsFilters } from "state/callsFiltersState";
-import { Table, useAsyncTable, useTableState } from "components/shared/Table";
+import { useAsyncTable } from "components/shared/Table";
 import { classNames } from "lib/classNames";
 import { usePermission } from "hooks/usePermission";
 import { defaultPermissions } from "@snailycad/permissions";
-import { Droppable, FullDate, Status } from "@snailycad/ui";
+import { Button, Droppable, FullDate, Status } from "@snailycad/ui";
 import { DndActions } from "types/dnd-actions";
 import { AssignedUnitsColumn } from "./columns/assigned-units-column";
 import type { Get911CallsData, Post911CallAssignUnAssign } from "@snailycad/types/api";
@@ -44,7 +44,6 @@ function Active911Calls({ initialData }: Props) {
   const hasCalls = isMounted ? call911State.calls.length >= 1 : initialData.totalCount >= 1;
 
   const t = useTranslations("Calls");
-  const leo = useTranslations("Leo");
   const common = useTranslations("Common");
   const router = useRouter();
 
@@ -52,7 +51,10 @@ function Active911Calls({ initialData }: Props) {
   const { execute } = useFetch();
   const activeOfficer = useLeoState((state) => state.activeOfficer);
   const activeDeputy = useEmsFdState((state) => state.activeDeputy);
-  const search = useCallsFilters((state) => state.search);
+  const { search, status } = useCallsFilters((state) => ({
+    search: state.search,
+    status: state.status,
+  }));
 
   const asyncTable = useAsyncTable({
     search,
@@ -74,12 +76,6 @@ function Active911Calls({ initialData }: Props) {
   React.useEffect(() => {
     call911State.setCalls(asyncTable.items);
   }, [asyncTable.items]); // eslint-disable-line react-hooks/exhaustive-deps
-
-  const tableState = useTableState({
-    defaultHiddenColumns: ["type", "priority"],
-    tableId: "active-calls",
-    pagination: asyncTable.pagination,
-  });
 
   const hasDispatchPermissions = hasPermissions(defaultPermissions.defaultDispatchPermissions);
   const isDispatch = router.pathname === "/dispatch" && hasDispatchPermissions;
@@ -123,84 +119,178 @@ function Active911Calls({ initialData }: Props) {
   }
 
   const _calls = React.useMemo(() => {
-    if (isDispatch) return calls;
-    return calls.filter((call) => call.status === WhitelistStatus.ACCEPTED);
-  }, [calls, isDispatch]);
+    const baseCalls = isDispatch
+      ? calls
+      : calls.filter((call) => call.status === WhitelistStatus.ACCEPTED);
+
+    if (status === "all") {
+      return baseCalls;
+    }
+
+    return baseCalls.filter((call) => {
+      if (status === "pending") return call.status === WhitelistStatus.PENDING;
+      if (status === "accepted") return call.status === WhitelistStatus.ACCEPTED;
+      if (status === "declined") return call.status === WhitelistStatus.DECLINED;
+      return true;
+    });
+  }, [calls, isDispatch, status]);
 
   if (!CALLS_911) {
     return null;
   }
 
+  const totalPages = React.useMemo(() => {
+    const totalCount = asyncTable.pagination.totalDataCount || 0;
+    return Math.max(1, Math.ceil(totalCount / asyncTable.pagination.pageSize));
+  }, [asyncTable.pagination.totalDataCount, asyncTable.pagination.pageSize]);
+
+  function handleNextPage() {
+    asyncTable.pagination.setPagination((prev) => ({
+      ...prev,
+      pageIndex: Math.min(prev.pageIndex + 1, totalPages - 1),
+    }));
+  }
+
+  function handlePreviousPage() {
+    asyncTable.pagination.setPagination((prev) => ({
+      ...prev,
+      pageIndex: Math.max(prev.pageIndex - 1, 0),
+    }));
+  }
+
+  function renderCallPriority(call: Full911Call) {
+    const priority = call.type?.priority;
+
+    if (!priority) {
+      return (
+        <span className="mark43-event__badge mark43-event__badge--neutral">{common("none")}</span>
+      );
+    }
+
+    const normalized =
+      typeof priority === "string"
+        ? priority
+            .toLowerCase()
+            .replace(/[^a-z0-9]+/g, "-")
+            .replace(/^-+|-+$/g, "")
+        : String(priority);
+    const label = typeof priority === "number" ? `P${priority}` : priority;
+
+    return (
+      <span
+        className={classNames(
+          "mark43-event__badge",
+          "mark43-event__badge--priority",
+          `mark43-event__badge--priority-${normalized}`,
+        )}
+      >
+        {label}
+      </span>
+    );
+  }
+
+  function renderCall(call: Full911Call) {
+    const isUnitAssigned = isMounted && isUnitAssignedToCall(call);
+    const isSignal = Boolean(call.isSignal100);
+    const notifyAssignedUnits = Boolean((call as any).notifyAssignedUnits);
+
+    return (
+      <article
+        key={call.id}
+        className={classNames(
+          "mark43-event",
+          isSignal && "mark43-event--signal",
+          isUnitAssigned && "mark43-event--assigned",
+          notifyAssignedUnits && "mark43-event--updated",
+        )}
+      >
+        <div className="mark43-event__details">
+          <div className="mark43-event__meta">
+            {renderCallPriority(call)}
+            <span className="mark43-event__meta-id">#{call.caseNumber}</span>
+            <span className="mark43-event__status-chip">
+              <Status fallback="—">{call.status}</Status>
+            </span>
+            <span className="mark43-event__meta-updated">
+              <FullDate>{call.updatedAt}</FullDate>
+            </span>
+          </div>
+
+          <div className="mark43-event__primary">
+            <h3 className="mark43-event__location">
+              {call.location}
+              {call.postal ? <span className="mark43-event__postal">({call.postal})</span> : null}
+            </h3>
+            <p className="mark43-event__type">{call.type?.value.value ?? common("none")}</p>
+            <div className="mark43-event__description">
+              <CallDescription data={call} nonCard />
+            </div>
+          </div>
+        </div>
+
+        <div className="mark43-event__sidebar">
+          <div className="mark43-event__assigned">
+            <AssignedUnitsColumn
+              handleAssignToCall={(call, unitId) =>
+                handleAssignUnassignToCall(call, "assign", unitId)
+              }
+              isDispatch={isDispatch}
+              call={call}
+            />
+          </div>
+
+          <div className="mark43-event__actions">
+            <ActiveCallsActionsColumn
+              handleAssignUnassignToCall={handleAssignUnassignToCall}
+              isUnitAssigned={isUnitAssigned}
+              unit={unit}
+              call={call}
+            />
+          </div>
+        </div>
+      </article>
+    );
+  }
+
   return (
-    <section className="dashboard-card">
+    <section className="mark43-events">
       {audio.addedToCallAudio}
       {audio.incomingCallAudio}
       <ActiveCallsHeader asyncTable={asyncTable} calls={calls} />
 
-      <div className="dashboard-card__body">
+      <div className="mark43-events__body">
         {!hasCalls ? (
-          <p className="dashboard-card__empty">{t("no911Calls")}</p>
+          <p className="mark43-events__empty">{t("no911Calls")}</p>
         ) : (
-          <Table
-            tableState={tableState}
-            features={{ isWithinCardOrModal: true }}
-            data={_calls.map((call) => {
-              const isUnitAssigned = isMounted && isUnitAssignedToCall(call);
-
-              return {
-                id: call.id,
-                rowProps: {
-                  className: classNames(
-                    isUnitAssigned && "bg-gray-200 dark:bg-amber-900",
-                    call.isSignal100 && "bg-red-500 dark:bg-red-700",
-                    // @ts-expect-error this is a socket extra type, it doesn't exist on the actual call
-                    call.notifyAssignedUnits && "animate-call-updated",
-                  ),
-                },
-                caseNumber: `#${call.caseNumber}`,
-                type: call.type?.value.value ?? common("none"),
-                priority: call.type?.priority ?? common("none"),
-                status: <Status fallback="—">{call.status}</Status>,
-                name: `${call.name} ${call.viaDispatch ? `(${leo("dispatch")})` : ""}`,
-                location: `${call.location} ${call.postal ? `(${call.postal})` : ""}`,
-                description: <CallDescription data={call} />,
-                situationCode: call.situationCode?.value.value ?? common("none"),
-                updatedAt: <FullDate>{call.updatedAt}</FullDate>,
-                assignedUnits: (
-                  <AssignedUnitsColumn
-                    handleAssignToCall={(call, unitId) =>
-                      handleAssignUnassignToCall(call, "assign", unitId)
-                    }
-                    call={call}
-                    isDispatch={isDispatch}
-                  />
-                ),
-                actions: (
-                  <ActiveCallsActionsColumn
-                    handleAssignUnassignToCall={handleAssignUnassignToCall}
-                    isUnitAssigned={isUnitAssigned}
-                    unit={unit}
-                    call={call}
-                  />
-                ),
-              };
-            })}
-            columns={[
-              { header: "#", accessorKey: "caseNumber" },
-              isDispatch ? { header: t("status"), accessorKey: "status" } : null,
-              { header: t("caller"), accessorKey: "name" },
-              { header: common("type"), accessorKey: "type" },
-              { header: t("priority"), accessorKey: "priority" },
-              { header: t("location"), accessorKey: "location" },
-              { header: common("description"), accessorKey: "description" },
-              { header: t("situationCode"), accessorKey: "situationCode" },
-              { header: common("updatedAt"), accessorKey: "updatedAt" },
-              { header: t("assignedUnits"), accessorKey: "assignedUnits" },
-              { header: common("actions"), accessorKey: "actions" },
-            ]}
-          />
+          <div className="mark43-events__list">{_calls.map((call) => renderCall(call))}</div>
         )}
       </div>
+
+      {hasCalls ? (
+        <footer className="mark43-events__footer">
+          <div className="mark43-events__pagination">
+            <Button
+              className="mark43-events__pagination-button"
+              variant="transparent"
+              onPress={handlePreviousPage}
+              disabled={asyncTable.pagination.pageIndex <= 0}
+            >
+              Previous
+            </Button>
+            <span className="mark43-events__pagination-status">
+              {asyncTable.pagination.pageIndex + 1} / {totalPages}
+            </span>
+            <Button
+              className="mark43-events__pagination-button"
+              variant="transparent"
+              onPress={handleNextPage}
+              disabled={asyncTable.pagination.pageIndex + 1 >= totalPages}
+            >
+              Next
+            </Button>
+          </div>
+        </footer>
+      ) : null}
 
       {isDispatch ? (
         <Droppable onDrop={handleUnassign} accepts={[DndActions.UnassignUnitFrom911Call]}>
