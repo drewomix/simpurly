@@ -27,6 +27,7 @@ import { useAsyncTable } from "hooks/shared/table/use-async-table";
 import type { GetJailedCitizensData } from "@snailycad/types/api";
 import { useLoadValuesClientSide } from "hooks/useLoadValuesClientSide";
 import { RecordsCaseNumberColumn } from "components/leo/records-case-number-column";
+import { Mark43OfficerLayout } from "components/mark43/mark43-officer-layout";
 
 interface Props {
   data: GetJailedCitizensData;
@@ -101,86 +102,95 @@ export default function Jail({ data }: Props) {
       permissions={{
         permissions: [Permissions.ViewJail, Permissions.ManageJail],
       }}
-      className="dark:text-white"
+      className="mark43-cad-layout"
     >
-      <header className="flex flex-col flex-start">
-        <Title>{t("jail")}</Title>
+      <Title renderLayoutTitle={false}>{t("jail")}</Title>
 
-        <CheckboxField
-          onChange={(isSelected) => {
-            asyncTable.pagination.setPagination((prev) => ({ ...prev, pageIndex: 0 }));
-            asyncTable.setFilters((prev) => ({
-              ...prev,
-              activeOnly: isSelected,
-            }));
-          }}
-          isSelected={Boolean(asyncTable.filters?.activeOnly)}
-        >
-          {t("showActiveOnly")}
-        </CheckboxField>
-      </header>
+      <Mark43OfficerLayout
+        label={t("officer")}
+        title={t("jail")}
+        toolbar={
+          <div className="mark43-cad__toolbar-row">
+            <CheckboxField
+              onChange={(isSelected) => {
+                asyncTable.pagination.setPagination((prev) => ({ ...prev, pageIndex: 0 }));
+                asyncTable.setFilters((prev) => ({
+                  ...prev,
+                  activeOnly: isSelected,
+                }));
+              }}
+              isSelected={Boolean(asyncTable.filters?.activeOnly)}
+            >
+              {t("showActiveOnly")}
+            </CheckboxField>
+          </div>
+        }
+      >
+        {_itemsWithArrestReportSortedByCreatedAt.length <= 0 ? (
+          <p className="mark43-cad__empty">{t("noImprisonedCitizens")}</p>
+        ) : (
+          <Table
+            isLoading={asyncTable.isLoading}
+            tableState={tableState}
+            data={_itemsWithArrestReportSortedByCreatedAt.map((item) => {
+              const jailTime = item.record?.violations.reduce(
+                (ac, cv) => ac + (cv.jailTime || 0),
+                0,
+              );
+              const released = isReleased(item.record);
+              const type = released && item.record.release?.type;
+              const citizen = released ? item.record.release?.releasedBy : null;
 
-      {_itemsWithArrestReportSortedByCreatedAt.length <= 0 ? (
-        <p className="mt-5">{t("noImprisonedCitizens")}</p>
-      ) : (
-        <Table
-          isLoading={asyncTable.isLoading}
-          tableState={tableState}
-          data={_itemsWithArrestReportSortedByCreatedAt.map((item) => {
-            const jailTime = item.record?.violations.reduce((ac, cv) => ac + (cv.jailTime || 0), 0);
-            const released = isReleased(item.record);
-            const type = released && item.record.release?.type;
-            const citizen = released ? item.record.release?.releasedBy : null;
+              const status = !released
+                ? t("arrested")
+                : type === ReleaseType.BAIL_POSTED
+                  ? t("bailPosted", { citizen: `${citizen?.name} ${citizen?.surname}` })
+                  : t("timeOut");
 
-            const status = !released
-              ? t("arrested")
-              : type === ReleaseType.BAIL_POSTED
-                ? t("bailPosted", { citizen: `${citizen?.name} ${citizen?.surname}` })
-                : t("timeOut");
-
-            return {
-              rowProps: { style: released ? { opacity: "0.5" } : undefined },
-              id: item.id,
-              caseNumber: <RecordsCaseNumberColumn record={item.record} />,
-              citizen: (
-                <Button onPress={() => handleNameClick(item)}>
-                  {item.name} {item.surname}{" "}
-                  {SOCIAL_SECURITY_NUMBERS && item.socialSecurityNumber
-                    ? `(SSN: ${item.socialSecurityNumber})`
-                    : null}
-                </Button>
-              ),
-              officer: item.record.officer
-                ? `${generateCallsign(item.record.officer)} ${makeUnitName(item.record.officer)}`
-                : common("none"),
-              jailTime,
-              status,
-              createdAt: <FullDate>{item.record.createdAt}</FullDate>,
-              actions: (
-                <Button
-                  disabled={released}
-                  onPress={() => handleCheckoutClick(item, item.record.id)}
-                  className="ml-2"
-                  size="xs"
-                >
-                  {t("release")}
-                </Button>
-              ),
-            };
-          })}
-          columns={[
-            { header: t("caseNumber"), accessorKey: "caseNumber" },
-            { header: t("citizen"), accessorKey: "citizen" },
-            { header: t("officer"), accessorKey: "officer" },
-            { header: t("jailTime"), accessorKey: "jailTime" },
-            { header: t("status"), accessorKey: "status" },
-            { header: common("createdAt"), accessorKey: "createdAt" },
-            hasPermissions([Permissions.ManageJail])
-              ? { header: common("actions"), accessorKey: "actions" }
-              : null,
-          ]}
-        />
-      )}
+              return {
+                rowProps: { style: released ? { opacity: "0.5" } : undefined },
+                id: item.id,
+                caseNumber: <RecordsCaseNumberColumn record={item.record} />,
+                citizen: (
+                  <Button onPress={() => handleNameClick(item)}>
+                    {item.name} {item.surname}{" "}
+                    {SOCIAL_SECURITY_NUMBERS && item.socialSecurityNumber
+                      ? `(SSN: ${item.socialSecurityNumber})`
+                      : null}
+                  </Button>
+                ),
+                officer: item.record.officer
+                  ? `${generateCallsign(item.record.officer)} ${makeUnitName(item.record.officer)}`
+                  : common("none"),
+                jailTime,
+                status,
+                createdAt: <FullDate>{item.record.createdAt}</FullDate>,
+                actions: (
+                  <Button
+                    disabled={released}
+                    onPress={() => handleCheckoutClick(item, item.record.id)}
+                    className="ml-2"
+                    size="xs"
+                  >
+                    {t("release")}
+                  </Button>
+                ),
+              };
+            })}
+            columns={[
+              { header: t("caseNumber"), accessorKey: "caseNumber" },
+              { header: t("citizen"), accessorKey: "citizen" },
+              { header: t("officer"), accessorKey: "officer" },
+              { header: t("jailTime"), accessorKey: "jailTime" },
+              { header: t("status"), accessorKey: "status" },
+              { header: common("createdAt"), accessorKey: "createdAt" },
+              hasPermissions([Permissions.ManageJail])
+                ? { header: common("actions"), accessorKey: "actions" }
+                : null,
+            ]}
+          />
+        )}
+      </Mark43OfficerLayout>
 
       <NameSearchModal />
       <ReleaseCitizenModal onSuccess={handleSuccess} citizen={tempCitizen} />

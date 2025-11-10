@@ -23,6 +23,7 @@ import type { DeleteMyOfficerByIdData, GetMyOfficersData } from "@snailycad/type
 import { useTemporaryItem } from "hooks/shared/useTemporaryItem";
 import { useLoadValuesClientSide } from "hooks/useLoadValuesClientSide";
 import { ImageWrapper } from "components/shared/image-wrapper";
+import { Mark43OfficerLayout } from "components/mark43/mark43-officer-layout";
 
 const AlertModal = dynamic(async () => (await import("components/modal/AlertModal")).AlertModal);
 const ManageOfficerModal = dynamic(
@@ -76,77 +77,84 @@ export default function MyOfficers({ officers: data }: Props) {
   }
 
   return (
-    <Layout permissions={{ permissions: [Permissions.Leo] }} className="dark:text-white">
-      <header className="flex items-center justify-between">
-        <Title className="!mb-0">{t("myOfficers")}</Title>
+    <Layout permissions={{ permissions: [Permissions.Leo] }} className="mark43-cad-layout">
+      <Title renderLayoutTitle={false}>{t("myOfficers")}</Title>
 
-        <Button onPress={() => modalState.openModal(ModalIds.ManageOfficer)}>
-          {t("createOfficer")}
-        </Button>
-      </header>
-
-      {officers.length <= 0 ? (
-        <p className="mt-5">{t("noOfficers")}</p>
-      ) : (
-        <Table
-          tableState={tableState}
-          data={officers.map((officer) => {
-            return {
-              id: officer.id,
-              officer: (
-                <span className="flex items-center">
-                  {officer.imageId ? (
-                    <ImageWrapper
-                      quality={70}
-                      className="rounded-md w-[30px] h-[30px] object-cover mr-2"
-                      draggable={false}
-                      src={makeImageUrl("units", officer.imageId)!}
-                      loading="lazy"
-                      width={30}
-                      height={30}
-                      alt={makeUnitName(officer)}
-                    />
-                  ) : null}
-                  {makeUnitName(officer)}
-                </span>
-              ),
-              callsign: generateCallsign(officer),
-              badgeNumberString: officer.badgeNumberString,
-              department: formatOfficerDepartment(officer) ?? common("none"),
-              departmentStatus: <UnitDepartmentStatus unit={officer} />,
-              division: formatUnitDivisions(officer),
-              rank: <OfficerRank unit={officer} />,
-              position: officer.position ?? common("none"),
-              actions: (
-                <>
-                  <Button size="xs" onPress={() => handleEditClick(officer)} variant="success">
-                    {common("edit")}
-                  </Button>
-                  <Button
-                    onPress={() => handleDeleteClick(officer)}
-                    className="ml-2"
-                    variant="danger"
-                    size="xs"
-                  >
-                    {common("delete")}
-                  </Button>
-                </>
-              ),
-            };
-          })}
-          columns={[
-            { header: t("officer"), accessorKey: "officer" },
-            { header: t("callsign"), accessorKey: "callsign" },
-            BADGE_NUMBERS ? { header: t("badgeNumber"), accessorKey: "badgeNumberString" } : null,
-            { header: t("department"), accessorKey: "department" },
-            DIVISIONS ? { header: t("division"), accessorKey: "division" } : null,
-            { header: t("rank"), accessorKey: "rank" },
-            { header: t("position"), accessorKey: "position" },
-            { header: t("status"), accessorKey: "departmentStatus" },
-            { header: common("actions"), accessorKey: "actions" },
-          ]}
-        />
-      )}
+      <Mark43OfficerLayout
+        label={t("officer")}
+        title={t("myOfficers")}
+        actions={
+          <Button
+            className="mark43-cad__pill-button"
+            onPress={() => modalState.openModal(ModalIds.ManageOfficer)}
+          >
+            {t("createOfficer")}
+          </Button>
+        }
+      >
+        {officers.length <= 0 ? (
+          <p className="mark43-cad__empty">{t("noOfficers")}</p>
+        ) : (
+          <Table
+            tableState={tableState}
+            data={officers.map((officer) => {
+              return {
+                id: officer.id,
+                officer: (
+                  <span className="flex items-center">
+                    {officer.imageId ? (
+                      <ImageWrapper
+                        quality={70}
+                        className="rounded-md w-[30px] h-[30px] object-cover mr-2"
+                        draggable={false}
+                        src={makeImageUrl("units", officer.imageId)!}
+                        loading="lazy"
+                        width={30}
+                        height={30}
+                        alt={makeUnitName(officer)}
+                      />
+                    ) : null}
+                    {makeUnitName(officer)}
+                  </span>
+                ),
+                callsign: generateCallsign(officer),
+                badgeNumberString: officer.badgeNumberString,
+                department: formatOfficerDepartment(officer) ?? common("none"),
+                departmentStatus: <UnitDepartmentStatus unit={officer} />,
+                division: formatUnitDivisions(officer),
+                rank: <OfficerRank unit={officer} />,
+                position: officer.position ?? common("none"),
+                actions: (
+                  <>
+                    <Button size="xs" onPress={() => handleEditClick(officer)} variant="success">
+                      {common("edit")}
+                    </Button>
+                    <Button
+                      onPress={() => handleDeleteClick(officer)}
+                      className="ml-2"
+                      variant="danger"
+                      size="xs"
+                    >
+                      {common("delete")}
+                    </Button>
+                  </>
+                ),
+              };
+            })}
+            columns={[
+              { header: t("officer"), accessorKey: "officer" },
+              { header: t("callsign"), accessorKey: "callsign" },
+              BADGE_NUMBERS ? { header: t("badgeNumber"), accessorKey: "badgeNumberString" } : null,
+              { header: t("department"), accessorKey: "department" },
+              DIVISIONS ? { header: t("division"), accessorKey: "division" } : null,
+              { header: t("rank"), accessorKey: "rank" },
+              { header: t("position"), accessorKey: "position" },
+              { header: t("status"), accessorKey: "departmentStatus" },
+              { header: common("actions"), accessorKey: "actions" },
+            ]}
+          />
+        )}
+      </Mark43OfficerLayout>
 
       <ManageOfficerModal
         onCreate={(officer) => setOfficers((p) => [officer, ...p])}

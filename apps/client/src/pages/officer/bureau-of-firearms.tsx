@@ -12,6 +12,7 @@ import { Permissions } from "hooks/usePermission";
 import useFetch from "lib/useFetch";
 import type { PostBOFData, GetPendingBOFWeapons } from "@snailycad/types/api";
 import { useInvalidateQuery } from "hooks/use-invalidate-query";
+import { Mark43OfficerLayout } from "components/mark43/mark43-officer-layout";
 
 interface Props {
   data: GetPendingBOFWeapons;
@@ -19,6 +20,7 @@ interface Props {
 
 export default function BureauOfFirearms({ data }: Props) {
   const t = useTranslations();
+  const leo = useTranslations("Leo");
   const common = useTranslations("Common");
   const { state, execute } = useFetch();
   const { invalidateQuery } = useInvalidateQuery(["officer", "notifications"]);
@@ -54,63 +56,65 @@ export default function BureauOfFirearms({ data }: Props) {
       permissions={{
         permissions: [Permissions.ManageBureauOfFirearms],
       }}
-      className="dark:text-white"
+      className="mark43-cad-layout"
     >
-      <Title>{t("Bof.bureauOfFirearms")}</Title>
+      <Title renderLayoutTitle={false}>{t("Bof.bureauOfFirearms")}</Title>
 
-      {asyncTable.noItemsAvailable ? (
-        <p className="mt-5">{t("Bof.noWeaponsPendingBof")}</p>
-      ) : (
-        <Table
-          tableState={tableState}
-          data={asyncTable.items.map((weapon) => {
-            return {
-              rowProps: {
-                className: weapon.bofStatus === "PENDING" ? "opacity-100" : "opacity-50",
-              },
-              id: weapon.id,
-              owner: `${weapon.citizen.name} ${weapon.citizen.surname}`,
-              model: weapon.model.value.value,
-              registrationStatus: weapon.registrationStatus.value,
-              serialNumber: weapon.serialNumber,
-              bofStatus: <Status fallback="—">{weapon.bofStatus}</Status>,
-              createdAt: <FullDate onlyDate>{weapon.createdAt}</FullDate>,
-              actions: (
-                <>
-                  <Button
-                    onPress={() => handleAcceptOrDecline(weapon.id, "ACCEPT")}
-                    disabled={weapon.bofStatus !== WhitelistStatus.PENDING || state === "loading"}
-                    variant="success"
-                    size="xs"
-                    isDisabled={weapon.bofStatus !== WhitelistStatus.PENDING}
-                  >
-                    {common("accept")}
-                  </Button>
-                  <Button
-                    onPress={() => handleAcceptOrDecline(weapon.id, "DECLINE")}
-                    disabled={weapon.bofStatus !== WhitelistStatus.PENDING || state === "loading"}
-                    variant="danger"
-                    className="ml-2"
-                    size="xs"
-                    isDisabled={weapon.bofStatus !== WhitelistStatus.PENDING}
-                  >
-                    {common("decline")}
-                  </Button>
-                </>
-              ),
-            };
-          })}
-          columns={[
-            { header: t("Vehicles.owner"), accessorKey: "owner" },
-            { header: t("Weapons.model"), accessorKey: "model" },
-            { header: t("Weapons.registrationStatus"), accessorKey: "registrationStatus" },
-            { header: t("Weapons.serialNumber"), accessorKey: "serialNumber" },
-            { header: t("Weapons.bofStatus"), accessorKey: "bofStatus" },
-            { header: common("createdAt"), accessorKey: "createdAt" },
-            { header: common("actions"), accessorKey: "actions" },
-          ]}
-        />
-      )}
+      <Mark43OfficerLayout label={leo("officer")} title={t("Bof.bureauOfFirearms")}>
+        {asyncTable.noItemsAvailable ? (
+          <p className="mark43-cad__empty">{t("Bof.noWeaponsPendingBof")}</p>
+        ) : (
+          <Table
+            tableState={tableState}
+            data={asyncTable.items.map((weapon) => {
+              return {
+                rowProps: {
+                  className: weapon.bofStatus === "PENDING" ? "opacity-100" : "opacity-50",
+                },
+                id: weapon.id,
+                owner: `${weapon.citizen.name} ${weapon.citizen.surname}`,
+                model: weapon.model.value.value,
+                registrationStatus: weapon.registrationStatus.value,
+                serialNumber: weapon.serialNumber,
+                bofStatus: <Status fallback="—">{weapon.bofStatus}</Status>,
+                createdAt: <FullDate onlyDate>{weapon.createdAt}</FullDate>,
+                actions: (
+                  <>
+                    <Button
+                      onPress={() => handleAcceptOrDecline(weapon.id, "ACCEPT")}
+                      disabled={weapon.bofStatus !== WhitelistStatus.PENDING || state === "loading"}
+                      variant="success"
+                      size="xs"
+                      isDisabled={weapon.bofStatus !== WhitelistStatus.PENDING}
+                    >
+                      {common("accept")}
+                    </Button>
+                    <Button
+                      onPress={() => handleAcceptOrDecline(weapon.id, "DECLINE")}
+                      disabled={weapon.bofStatus !== WhitelistStatus.PENDING || state === "loading"}
+                      variant="danger"
+                      className="ml-2"
+                      size="xs"
+                      isDisabled={weapon.bofStatus !== WhitelistStatus.PENDING}
+                    >
+                      {common("decline")}
+                    </Button>
+                  </>
+                ),
+              };
+            })}
+            columns={[
+              { header: t("Vehicles.owner"), accessorKey: "owner" },
+              { header: t("Weapons.model"), accessorKey: "model" },
+              { header: t("Weapons.registrationStatus"), accessorKey: "registrationStatus" },
+              { header: t("Weapons.serialNumber"), accessorKey: "serialNumber" },
+              { header: t("Weapons.bofStatus"), accessorKey: "bofStatus" },
+              { header: common("createdAt"), accessorKey: "createdAt" },
+              { header: common("actions"), accessorKey: "actions" },
+            ]}
+          />
+        )}
+      </Mark43OfficerLayout>
     </Layout>
   );
 }

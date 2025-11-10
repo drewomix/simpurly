@@ -9,6 +9,7 @@ interface SearchAreaProps<T> {
   totalCount?: number;
   children?: React.ReactNode;
   className?: string;
+  resultsClassName?: string;
 }
 
 export function SearchArea<T>(props: SearchAreaProps<T>) {
@@ -40,7 +41,7 @@ export function SearchArea<T>(props: SearchAreaProps<T>) {
       </div>
 
       {showSearchXResults ? (
-        <p className="italic text-base font-semibold">
+        <p className={classNames("italic text-base font-semibold", props.resultsClassName)}>
           {common.rich("showingXResults", {
             amount: props.asyncTable.pagination.totalDataCount,
           })}

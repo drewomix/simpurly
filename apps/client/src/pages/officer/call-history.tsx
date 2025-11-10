@@ -28,6 +28,7 @@ import { useTemporaryItem } from "hooks/shared/useTemporaryItem";
 import { getSelectedTableRows } from "hooks/shared/table/use-table-state";
 import { CallDescription } from "components/dispatch/active-calls/CallDescription";
 import { useCall911State } from "state/dispatch/call-911-state";
+import { Mark43OfficerLayout } from "components/mark43/mark43-officer-layout";
 
 interface Props {
   data: Get911CallsData;
@@ -104,25 +105,25 @@ export default function CallHistory({ data, incidents }: Props) {
       permissions={{
         permissions: [Permissions.ViewCallHistory, Permissions.ManageCallHistory],
       }}
-      className="dark:text-white"
+      className="mark43-cad-layout"
     >
-      <Title>{leo("callHistory")}</Title>
+      <Title renderLayoutTitle={false}>{leo("callHistory")}</Title>
 
-      {data.calls.length <= 0 ? (
-        <p className="mt-5">{"No calls ended yet."}</p>
-      ) : (
-        <>
-          <div className="mb-2 flex gap-2 items-center">
+      <Mark43OfficerLayout
+        label={leo("officer")}
+        title={leo("callHistory")}
+        toolbar={
+          <div className="mark43-cad__toolbar-row w-full">
             <TextField
               onChange={(value) => setSearch(value)}
               value={search}
               label={common("search")}
-              className="w-full"
+              className="min-w-[16rem] flex-1"
             />
             {hasManagePermissions ? (
               <Button
                 onPress={() => modalState.openModal(ModalIds.AlertPurgeCalls)}
-                className="flex items-center gap-2 min-w-fit h-10 mt-3.5"
+                className="mark43-cad__pill-button mark43-cad__pill-button--compact"
                 disabled={state === "loading" || isEmpty(tableState.rowSelection)}
               >
                 {state === "loading" ? <Loader /> : null}
@@ -130,58 +131,74 @@ export default function CallHistory({ data, incidents }: Props) {
               </Button>
             ) : null}
           </div>
+        }
+      >
+        {data.calls.length <= 0 ? (
+          <p className="mark43-cad__empty">{"No calls ended yet."}</p>
+        ) : (
+          <>
+            {search && asyncTable.pagination.totalDataCount !== data.totalCount ? (
+              <p className="mark43-cad__results-meta">
+                {common.rich("showingXResults", {
+                  amount: asyncTable.pagination.totalDataCount,
+                })}
+              </p>
+            ) : null}
 
-          {search && asyncTable.pagination.totalDataCount !== data.totalCount ? (
-            <p className="italic text-base font-semibold">
-              {common.rich("showingXResults", {
-                amount: asyncTable.pagination.totalDataCount,
-              })}
-            </p>
-          ) : null}
+            <Table
+              tableState={tableState}
+              features={{ rowSelection: hasManagePermissions }}
+              data={asyncTable.items.map((call) => {
+                const caseNumbers = (call.incidents ?? [])
+                  .map((i) => `#${i.caseNumber}`)
+                  .join(", ");
 
-          <Table
-            tableState={tableState}
-            features={{ rowSelection: hasManagePermissions }}
-            data={asyncTable.items.map((call) => {
-              const caseNumbers = (call.incidents ?? []).map((i) => `#${i.caseNumber}`).join(", ");
-
-              return {
-                id: call.id,
-                rowProps: { call },
-                caller: call.name,
-                location: call.location,
-                postal: call.postal,
-                description: <CallDescription nonCard data={call} />,
-                assignedUnits: call.assignedUnits.map(makeUnit).join(", ") || common("none"),
-                caseNumbers: caseNumbers || common("none"),
-                createdAt: <FullDate>{call.createdAt}</FullDate>,
-                actions: (
-                  <>
-                    {hasManagePermissions ? (
-                      <Button onPress={() => handleLinkClick(call)} size="xs">
-                        {leo("linkToIncident")}
+                return {
+                  id: call.id,
+                  rowProps: { call },
+                  caller: call.name,
+                  location: call.location,
+                  postal: call.postal,
+                  description: <CallDescription nonCard data={call} />,
+                  assignedUnits: call.assignedUnits.map(makeUnit).join(", ") || common("none"),
+                  caseNumbers: caseNumbers || common("none"),
+                  createdAt: <FullDate>{call.createdAt}</FullDate>,
+                  actions: (
+                    <>
+                      {hasManagePermissions ? (
+                        <Button
+                          onPress={() => handleLinkClick(call)}
+                          size="xs"
+                          className="mark43-cad__pill-button mark43-cad__pill-button--compact"
+                        >
+                          {leo("linkToIncident")}
+                        </Button>
+                      ) : null}
+                      <Button
+                        className="mark43-cad__pill-button mark43-cad__pill-button--compact ml-2"
+                        onPress={() => handleViewClick(call)}
+                        size="xs"
+                      >
+                        {leo("viewCall")}
                       </Button>
-                    ) : null}
-                    <Button className="ml-2" onPress={() => handleViewClick(call)} size="xs">
-                      {leo("viewCall")}
-                    </Button>
-                  </>
-                ),
-              };
-            })}
-            columns={[
-              { header: t("caller"), accessorKey: "caller" },
-              { header: t("location"), accessorKey: "location" },
-              { header: t("postal"), accessorKey: "postal" },
-              { header: common("description"), accessorKey: "description" },
-              { header: t("assignedUnits"), accessorKey: "assignedUnits" },
-              { header: leo("caseNumbers"), accessorKey: "caseNumbers" },
-              { header: common("createdAt"), accessorKey: "createdAt" },
-              { header: common("actions"), accessorKey: "actions" },
-            ]}
-          />
-        </>
-      )}
+                    </>
+                  ),
+                };
+              })}
+              columns={[
+                { header: t("caller"), accessorKey: "caller" },
+                { header: t("location"), accessorKey: "location" },
+                { header: t("postal"), accessorKey: "postal" },
+                { header: common("description"), accessorKey: "description" },
+                { header: t("assignedUnits"), accessorKey: "assignedUnits" },
+                { header: leo("caseNumbers"), accessorKey: "caseNumbers" },
+                { header: common("createdAt"), accessorKey: "createdAt" },
+                { header: common("actions"), accessorKey: "actions" },
+              ]}
+            />
+          </>
+        )}
+      </Mark43OfficerLayout>
 
       <LinkCallToIncidentModal
         onSave={(call) => {

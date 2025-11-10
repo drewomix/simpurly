@@ -20,6 +20,7 @@ import { SearchArea } from "components/shared/search/search-area";
 import { VehicleSearchModal } from "components/leo/modals/VehicleSearchModal";
 import { NameSearchModal } from "components/leo/modals/NameSearchModal/NameSearchModal";
 import { CallDescription } from "components/dispatch/active-calls/CallDescription";
+import { Mark43OfficerLayout } from "components/mark43/mark43-officer-layout";
 
 interface Props {
   vehicles: GetLeoImpoundedVehiclesData;
@@ -63,56 +64,72 @@ export default function ImpoundLot({ vehicles: data }: Props) {
       permissions={{
         permissions: [Permissions.ViewImpoundLot, Permissions.ManageImpoundLot],
       }}
-      className="dark:text-white"
+      className="mark43-cad-layout"
     >
-      <Title>{t("impoundLot")}</Title>
+      <Title renderLayoutTitle={false}>{t("impoundLot")}</Title>
 
-      <SearchArea
-        asyncTable={asyncTable}
-        search={{ search, setSearch }}
-        totalCount={data.totalCount}
-      />
-
-      {asyncTable.items.length <= 0 ? (
-        <p className="mt-5">{t("noImpoundedVehicles")}</p>
-      ) : (
-        <Table
-          tableState={tableState}
-          data={asyncTable.items.map((item) => ({
-            id: item.id,
-            plate: (
-              <Button size="xs" onPress={() => handlePlatePress(item)}>
-                {item.vehicle.plate}
-              </Button>
-            ),
-            model: item.vehicle.model.value.value,
-            owner: item.vehicle.citizen
-              ? `${item.vehicle.citizen.name} ${item.vehicle.citizen.surname}`
-              : common("unknown"),
-            location: item.location.value,
-            impoundedBy: item.officer
-              ? `${generateCallsign(item.officer)} ${makeUnitName(item.officer)}`
-              : "—",
-            impoundedAt: <FullDate>{item.createdAt}</FullDate>,
-            description: <CallDescription data={item} />,
-            actions: (
-              <Button onPress={() => handleCheckoutClick(item)} className="ml-2" size="xs">
-                {t("allowCheckout")}
-              </Button>
-            ),
-          }))}
-          columns={[
-            { header: t("plate"), accessorKey: "plate" },
-            { header: t("model"), accessorKey: "model" },
-            { header: t("owner"), accessorKey: "owner" },
-            { header: t("location"), accessorKey: "location" },
-            { header: t("impoundedBy"), accessorKey: "impoundedBy" },
-            { header: t("impoundedAt"), accessorKey: "impoundedAt" },
-            { header: common("description"), accessorKey: "description" },
-            hasManagePermissions ? { header: common("actions"), accessorKey: "actions" } : null,
-          ]}
-        />
-      )}
+      <Mark43OfficerLayout
+        label={t("officer")}
+        title={t("impoundLot")}
+        toolbar={
+          <SearchArea
+            asyncTable={asyncTable}
+            search={{ search, setSearch }}
+            totalCount={data.totalCount}
+            className="mark43-cad__toolbar-row"
+            resultsClassName="mark43-cad__results-meta"
+          />
+        }
+      >
+        {asyncTable.items.length <= 0 ? (
+          <p className="mark43-cad__empty">{t("noImpoundedVehicles")}</p>
+        ) : (
+          <Table
+            tableState={tableState}
+            data={asyncTable.items.map((item) => ({
+              id: item.id,
+              plate: (
+                <Button
+                  size="xs"
+                  className="mark43-cad__table-link"
+                  onPress={() => handlePlatePress(item)}
+                >
+                  {item.vehicle.plate}
+                </Button>
+              ),
+              model: item.vehicle.model.value.value,
+              owner: item.vehicle.citizen
+                ? `${item.vehicle.citizen.name} ${item.vehicle.citizen.surname}`
+                : common("unknown"),
+              location: item.location.value,
+              impoundedBy: item.officer
+                ? `${generateCallsign(item.officer)} ${makeUnitName(item.officer)}`
+                : "—",
+              impoundedAt: <FullDate>{item.createdAt}</FullDate>,
+              description: <CallDescription data={item} />,
+              actions: (
+                <Button
+                  onPress={() => handleCheckoutClick(item)}
+                  className="mark43-cad__pill-button mark43-cad__pill-button--compact ml-2"
+                  size="xs"
+                >
+                  {t("allowCheckout")}
+                </Button>
+              ),
+            }))}
+            columns={[
+              { header: t("plate"), accessorKey: "plate" },
+              { header: t("model"), accessorKey: "model" },
+              { header: t("owner"), accessorKey: "owner" },
+              { header: t("location"), accessorKey: "location" },
+              { header: t("impoundedBy"), accessorKey: "impoundedBy" },
+              { header: t("impoundedAt"), accessorKey: "impoundedAt" },
+              { header: common("description"), accessorKey: "description" },
+              hasManagePermissions ? { header: common("actions"), accessorKey: "actions" } : null,
+            ]}
+          />
+        )}
+      </Mark43OfficerLayout>
 
       <AllowImpoundedVehicleCheckoutModal
         onCheckout={(vehicle) => {
