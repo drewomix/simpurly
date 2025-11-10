@@ -34,6 +34,7 @@ import { ActiveOfficers } from "components/dispatch/active-units/officers/active
 import { ActiveDeputies } from "components/dispatch/active-units/deputies/active-deputies";
 import { useAuth } from "context/AuthContext";
 import { useGenerateCallsign } from "hooks/useGenerateCallsign";
+import { CommandConsole } from "components/dispatch/command-console";
 
 const ActiveIncidents = dynamic(async () => {
   return (await import("components/dispatch/active-incidents/active-incidents")).ActiveIncidents;
@@ -199,6 +200,8 @@ export default function DispatchDashboard(props: DispatchPageProps) {
             ))}
           </div>
         </div>
+
+        <CommandConsole />
       </div>
 
       <DispatchModals />
