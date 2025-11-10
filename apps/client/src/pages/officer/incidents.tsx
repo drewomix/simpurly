@@ -14,6 +14,7 @@ import { usePermission, Permissions } from "hooks/usePermission";
 import type { GetActiveOfficerData, GetIncidentsData } from "@snailycad/types/api";
 import { IncidentsTable } from "components/leo/incidents/incidents-table";
 import Link from "next/link";
+import { Mark43OfficerLayout } from "components/mark43/mark43-officer-layout";
 
 interface Props {
   incidents: GetIncidentsData<"leo">;
@@ -38,35 +39,40 @@ export default function LeoIncidents({ activeOfficer, incidents: initialData }: 
       permissions={{
         permissions: [Permissions.ViewIncidents, Permissions.ManageIncidents],
       }}
-      className="dark:text-white"
+      className="mark43-cad-layout"
     >
-      {!isOfficerOnDuty ? (
-        <Alert className="mb-5" type="warning" title="Inactive Officer">
-          <p>
-            You must have an on-duty officer before you can manage incident. Please go to the{" "}
-            <Link className="font-medium underline" href="/officer">
-              Officer Dashboard
-            </Link>{" "}
-            and set your officer to on-duty.
-          </p>
-        </Alert>
-      ) : null}
+      <Title renderLayoutTitle={false}>{t("incidents")}</Title>
 
-      <header className="flex items-center justify-between">
-        <Title className="!mb-0">{t("incidents")}</Title>
-
-        {hasPermissions([Permissions.ManageIncidents]) ? (
-          <Button
-            title={!isOfficerOnDuty ? "You must have an active officer." : ""}
-            disabled={!isOfficerOnDuty}
-            onPress={() => modalState.openModal(ModalIds.ManageIncident)}
-          >
-            {t("createIncident")}
-          </Button>
+      <Mark43OfficerLayout
+        label={t("officer")}
+        title={t("incidents")}
+        actions={
+          hasPermissions([Permissions.ManageIncidents]) ? (
+            <Button
+              className="mark43-cad__pill-button"
+              title={!isOfficerOnDuty ? "You must have an active officer." : ""}
+              disabled={!isOfficerOnDuty}
+              onPress={() => modalState.openModal(ModalIds.ManageIncident)}
+            >
+              {t("createIncident")}
+            </Button>
+          ) : null
+        }
+      >
+        {!isOfficerOnDuty ? (
+          <Alert className="mark43-cad__alert" type="warning" title="Inactive Officer">
+            <p>
+              You must have an on-duty officer before you can manage incident. Please go to the{" "}
+              <Link className="font-medium underline" href="/officer">
+                Officer Dashboard
+              </Link>{" "}
+              and set your officer to on-duty.
+            </p>
+          </Alert>
         ) : null}
-      </header>
 
-      <IncidentsTable initialData={initialData} isUnitOnDuty={isOfficerOnDuty} type="leo" />
+        <IncidentsTable initialData={initialData} isUnitOnDuty={isOfficerOnDuty} type="leo" />
+      </Mark43OfficerLayout>
     </Layout>
   );
 }

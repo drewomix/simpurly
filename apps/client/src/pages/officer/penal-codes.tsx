@@ -14,6 +14,7 @@ import {
   getPenalCodeMaxFines,
   getPenalCodeMinFines,
 } from "components/leo/modals/manage-record/table-item-form";
+import { Mark43OfficerLayout } from "components/mark43/mark43-officer-layout";
 
 export default function PenalCodesPage() {
   const t = useTranslations("Leo");
@@ -34,22 +35,28 @@ export default function PenalCodesPage() {
   }, [search, penalCode.values]);
 
   return (
-    <Layout permissions={{ permissions: [Permissions.Leo] }} className="dark:text-white">
-      <Title>{t("penalCodes")}</Title>
+    <Layout permissions={{ permissions: [Permissions.Leo] }} className="mark43-cad-layout">
+      <Title renderLayoutTitle={false}>{t("penalCodes")}</Title>
 
-      {penalCode.values.length <= 0 ? (
-        <p className="mt-5">{t("noPenalCodes")}</p>
-      ) : (
-        <>
-          <TextField
-            label={common("search")}
-            className="my-2"
-            name="search"
-            value={search}
-            onChange={(value) => setSearch(value)}
-          />
-
-          <ul className="flex flex-col mt-3 gap-y-2">
+      <Mark43OfficerLayout
+        label={t("officer")}
+        title={t("penalCodes")}
+        toolbar={
+          <div className="mark43-cad__toolbar-row">
+            <TextField
+              label={common("search")}
+              name="search"
+              value={search}
+              onChange={(value) => setSearch(value)}
+              className="min-w-[14rem]"
+            />
+          </div>
+        }
+      >
+        {penalCode.values.length <= 0 ? (
+          <p className="mark43-cad__empty">{t("noPenalCodes")}</p>
+        ) : (
+          <ul className="mark43-cad__list">
             {filtered.map((penalCode) => {
               const description = dataToSlate(penalCode);
               const maxFine = getPenalCodeMaxFines(penalCode);
@@ -58,11 +65,11 @@ export default function PenalCodesPage() {
               const [minBail, maxBail] = penalCode.warningNotApplicable?.bail ?? [];
 
               return (
-                <li className="card p-4" key={penalCode.id}>
-                  <header>
-                    <h3 className="text-2xl font-semibold">{penalCode.title}</h3>
+                <li className="mark43-cad__list-item" key={penalCode.id}>
+                  <header className="mark43-cad__list-header">
+                    <h3 className="mark43-cad__list-title">{penalCode.title}</h3>
 
-                    <div className="mt-2">
+                    <div className="mark43-cad__info-grid">
                       <Infofield label={common("type")}>
                         {penalCode.type?.toLowerCase() ?? common("none")}
                       </Infofield>
@@ -91,8 +98,8 @@ export default function PenalCodesPage() {
               );
             })}
           </ul>
-        </>
-      )}
+        )}
+      </Mark43OfficerLayout>
     </Layout>
   );
 }

@@ -12,6 +12,7 @@ import { Permissions } from "hooks/usePermission";
 import useFetch from "lib/useFetch";
 import type { GetDMVPendingVehiclesData, PostDMVVehiclesData } from "@snailycad/types/api";
 import { useInvalidateQuery } from "hooks/use-invalidate-query";
+import { Mark43OfficerLayout } from "components/mark43/mark43-officer-layout";
 
 interface Props {
   data: GetDMVPendingVehiclesData;
@@ -55,75 +56,81 @@ export default function Dmv({ data }: Props) {
       permissions={{
         permissions: [Permissions.ManageDMV],
       }}
-      className="dark:text-white"
+      className="mark43-cad-layout"
     >
-      <Title>{t("dmv")}</Title>
+      <Title renderLayoutTitle={false}>{t("dmv")}</Title>
 
-      {asyncTable.noItemsAvailable ? (
-        <p className="mt-5">{t("noVehiclesPendingApprovalInDmv")}</p>
-      ) : (
-        <Table
-          tableState={tableState}
-          data={asyncTable.items.map((vehicle) => {
-            return {
-              rowProps: {
-                className: vehicle.dmvStatus === "PENDING" ? "opacity-100" : "opacity-50",
-              },
-              id: vehicle.id,
-              citizen: (
-                <span className="capitalize">
-                  {vehicle.citizen
-                    ? `${vehicle.citizen.name} ${vehicle.citizen.surname}`
-                    : common("unknown")}
-                </span>
-              ),
-              dmvStatus: <Status fallback="—">{vehicle.dmvStatus}</Status>,
-              createdAt: <FullDate>{vehicle.createdAt}</FullDate>,
-              plate: vehicle.plate,
-              model: vehicle.model.value.value,
-              color: vehicle.color,
-              registrationStatus: vehicle.registrationStatus.value,
-              insuranceStatus: vehicle.insuranceStatus?.value ?? common("none"),
-              vinNumber: vehicle.vinNumber,
-              actions: (
-                <>
-                  <Button
-                    onPress={() => handleAcceptOrDecline(vehicle.id, "ACCEPT")}
-                    disabled={vehicle.dmvStatus !== WhitelistStatus.PENDING || state === "loading"}
-                    variant="success"
-                    size="xs"
-                    isDisabled={vehicle.dmvStatus !== WhitelistStatus.PENDING}
-                  >
-                    {common("accept")}
-                  </Button>
-                  <Button
-                    onPress={() => handleAcceptOrDecline(vehicle.id, "DECLINE")}
-                    disabled={vehicle.dmvStatus !== WhitelistStatus.PENDING || state === "loading"}
-                    variant="danger"
-                    className="ml-2"
-                    size="xs"
-                    isDisabled={vehicle.dmvStatus !== WhitelistStatus.PENDING}
-                  >
-                    {common("decline")}
-                  </Button>
-                </>
-              ),
-            };
-          })}
-          columns={[
-            { header: vT("plate"), accessorKey: "plate" },
-            { header: vT("owner"), accessorKey: "citizen" },
-            { header: vT("dmvStatus"), accessorKey: "dmvStatus" },
-            { header: vT("model"), accessorKey: "model" },
-            { header: vT("color"), accessorKey: "color" },
-            { header: vT("registrationStatus"), accessorKey: "registrationStatus" },
-            { header: vT("insuranceStatus"), accessorKey: "insuranceStatus" },
-            { header: vT("vinNumber"), accessorKey: "vinNumber" },
-            { header: common("createdAt"), accessorKey: "createdAt" },
-            { header: common("actions"), accessorKey: "actions" },
-          ]}
-        />
-      )}
+      <Mark43OfficerLayout label={t("officer")} title={t("dmv")}>
+        {asyncTable.noItemsAvailable ? (
+          <p className="mark43-cad__empty">{t("noVehiclesPendingApprovalInDmv")}</p>
+        ) : (
+          <Table
+            tableState={tableState}
+            data={asyncTable.items.map((vehicle) => {
+              return {
+                rowProps: {
+                  className: vehicle.dmvStatus === "PENDING" ? "opacity-100" : "opacity-50",
+                },
+                id: vehicle.id,
+                citizen: (
+                  <span className="capitalize">
+                    {vehicle.citizen
+                      ? `${vehicle.citizen.name} ${vehicle.citizen.surname}`
+                      : common("unknown")}
+                  </span>
+                ),
+                dmvStatus: <Status fallback="—">{vehicle.dmvStatus}</Status>,
+                createdAt: <FullDate>{vehicle.createdAt}</FullDate>,
+                plate: vehicle.plate,
+                model: vehicle.model.value.value,
+                color: vehicle.color,
+                registrationStatus: vehicle.registrationStatus.value,
+                insuranceStatus: vehicle.insuranceStatus?.value ?? common("none"),
+                vinNumber: vehicle.vinNumber,
+                actions: (
+                  <>
+                    <Button
+                      onPress={() => handleAcceptOrDecline(vehicle.id, "ACCEPT")}
+                      disabled={
+                        vehicle.dmvStatus !== WhitelistStatus.PENDING || state === "loading"
+                      }
+                      variant="success"
+                      size="xs"
+                      isDisabled={vehicle.dmvStatus !== WhitelistStatus.PENDING}
+                    >
+                      {common("accept")}
+                    </Button>
+                    <Button
+                      onPress={() => handleAcceptOrDecline(vehicle.id, "DECLINE")}
+                      disabled={
+                        vehicle.dmvStatus !== WhitelistStatus.PENDING || state === "loading"
+                      }
+                      variant="danger"
+                      className="ml-2"
+                      size="xs"
+                      isDisabled={vehicle.dmvStatus !== WhitelistStatus.PENDING}
+                    >
+                      {common("decline")}
+                    </Button>
+                  </>
+                ),
+              };
+            })}
+            columns={[
+              { header: vT("plate"), accessorKey: "plate" },
+              { header: vT("owner"), accessorKey: "citizen" },
+              { header: vT("dmvStatus"), accessorKey: "dmvStatus" },
+              { header: vT("model"), accessorKey: "model" },
+              { header: vT("color"), accessorKey: "color" },
+              { header: vT("registrationStatus"), accessorKey: "registrationStatus" },
+              { header: vT("insuranceStatus"), accessorKey: "insuranceStatus" },
+              { header: vT("vinNumber"), accessorKey: "vinNumber" },
+              { header: common("createdAt"), accessorKey: "createdAt" },
+              { header: common("actions"), accessorKey: "actions" },
+            ]}
+          />
+        )}
+      </Mark43OfficerLayout>
     </Layout>
   );
 }

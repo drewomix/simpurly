@@ -13,6 +13,7 @@ import type { GetMyOfficersLogsData } from "@snailycad/types/api";
 import { useAsyncTable } from "components/shared/Table";
 import { useUserOfficers } from "hooks/leo/use-get-user-officers";
 import { SelectField } from "@snailycad/ui";
+import { Mark43OfficerLayout } from "components/mark43/mark43-officer-layout";
 
 export interface OfficerLogWithOfficer extends Omit<OfficerLog, "officer" | "emsFdDeputy"> {
   officer: Officer;
@@ -50,36 +51,41 @@ export default function MyOfficersLogs({ logs: data }: Props) {
   );
 
   return (
-    <Layout permissions={{ permissions: [Permissions.Leo] }} className="dark:text-white">
-      <header className="flex items-start justify-between">
-        <Title className="!mb-0">{t("myOfficerLogs")}</Title>
+    <Layout permissions={{ permissions: [Permissions.Leo] }} className="mark43-cad-layout">
+      <Title renderLayoutTitle={false}>{t("myOfficerLogs")}</Title>
 
-        <div className="ml-3 w-64">
-          <SelectField
-            isDisabled={isLoading}
-            isLoading={isLoading}
-            onSelectionChange={(value) => {
-              asyncTable.setFilters((prev) => ({
-                ...prev,
-                officerId: value,
-              }));
-            }}
-            selectedKey={asyncTable.filters?.officerId ?? null}
-            isClearable
-            label={t("groupByOfficer")}
-            options={Object.entries(officerNames).map(([id, name]) => ({
-              label: name,
-              value: id,
-            }))}
-          />
-        </div>
-      </header>
-
-      {data.totalCount <= 0 ? (
-        <p className="mt-5">{t("noOfficers")}</p>
-      ) : (
-        <OfficerLogsTable unit={null} asyncTable={asyncTable} />
-      )}
+      <Mark43OfficerLayout
+        label={t("officer")}
+        title={t("myOfficerLogs")}
+        toolbar={
+          <div className="mark43-cad__toolbar-row">
+            <SelectField
+              isDisabled={isLoading}
+              isLoading={isLoading}
+              onSelectionChange={(value) => {
+                asyncTable.setFilters((prev) => ({
+                  ...prev,
+                  officerId: value,
+                }));
+              }}
+              selectedKey={asyncTable.filters?.officerId ?? null}
+              isClearable
+              label={t("groupByOfficer")}
+              options={Object.entries(officerNames).map(([id, name]) => ({
+                label: name,
+                value: id,
+              }))}
+              className="min-w-[16rem]"
+            />
+          </div>
+        }
+      >
+        {data.totalCount <= 0 ? (
+          <p className="mark43-cad__empty">{t("noOfficers")}</p>
+        ) : (
+          <OfficerLogsTable unit={null} asyncTable={asyncTable} />
+        )}
+      </Mark43OfficerLayout>
     </Layout>
   );
 }
